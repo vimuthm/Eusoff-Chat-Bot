@@ -14,6 +14,8 @@ TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
+        print("HERE")
+        print(request)
         t_data = json.loads(request.body)
         t_message = t_data["message"]
         t_chat = t_message["chat"]
@@ -60,5 +62,5 @@ class ChatBotView(View):
             "parse_mode": "Markdown",
         }
         response = requests.post(
-            f"{TELEGRAM_URL}1805050265:AAHwd_EGpAHxX_Z-jKGc6H1Pxw7oGsTj0vI/sendMessage", data=data
+            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", data=data
         )
