@@ -23,7 +23,12 @@ class ChatBotView(View):
         try:
             text = t_message["text"].strip().lower()
         except Exception as e:
-            return JsonResponse({"ok": "POST request processed"})
+            try:
+                msg = "Unable to parse the text"
+                self.send_message(msg, t_chat["id"])
+                return JsonResponse({"ok": "POST request processed"})
+            except Exception as e:
+                return JsonResponse({"ok": "POST request processed"})
 
         text = text.lstrip("/")
         print(text)
