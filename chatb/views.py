@@ -108,13 +108,13 @@ class ChatBotView(View):
                     {"$set": {"state": "matched"}}
                 )
 
-        elif chat.state == "matched":
-            if text == "end":
-                self.send_message("End not done", t_id)
-            elif text == "report":
-                self.send_message("Report not done", t_id)
-            else:
-                self.send_message("Anon chat not done", t_id)
+        # elif chat.state == "matched":
+        #     if text == "end":
+        #         self.send_message("End not done", t_id)
+        #     elif text == "report":
+        #         self.send_message("Report not done", t_id)
+        #     else:
+        #         self.send_message("Anon chat not done", t_id)
         elif text == "+":
             chat["counter"] += 1
             chatb_collection.save(chat)
