@@ -30,8 +30,6 @@ startText = """Hi there and Welcome to the Eusoff Chat Bot. You can use this bot
             can rate the conversation as well. 
             """ + helpText
 
-queue = []
-
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
@@ -81,19 +79,22 @@ class ChatBotView(View):
         elif text == "start":
             self.send_message(startText, t_id)
         elif text == "match":
-            queue.append(t_id)
-            print("after append" + ' '.join([str(elem) for elem in queue]))
+            # queue.append(t_id)
+            # print("after append" + ' '.join([str(elem) for elem in queue]))
             chatb_collection.update_one(self.queryChatId(t_id), {"$set": {"state": "queued"}})
+            inQueue = chatb_collection.count_documents({"state": "queued"})
             waitMessage = "Looking for another Eusoffian."
             sentMessage = self.send_message(waitMessage, t_id)
             count = 0
-            while len(queue) == 1:
+            while inQueue == 1:
                 waitMessage = waitMessage + (count % 3) * "."
-                self.update_message(waitMessage, t_id, sentMessage.message_id)
+                self.update_message(waitMessage, t_id, sentMessage.result.message_id)
+                inQueue = chatb_collection.count_documents({"state": "queued"})
                 count += 1
-            if len(queue) == 2:
-                person1 = queue.pop(0)
-                person2 = queue.pop(0)
+            if inQueue > 1:
+                personsInQueue = chatb_collection.find({"state": "queued"}).toArray()
+                person1 = personsInQueue[0]
+                person2 = personsInQueue[1]
                 chatb_collection.update_one(
                     self.queryChatId(person1), 
                     {"$set": {"match_id": person2}}
@@ -129,8 +130,18 @@ class ChatBotView(View):
             msg = "The Tutorial bot was restarted"
             self.send_message(msg, t_id)
         else:
-            msg = "Unknown command"
-            self.send_message(msg, t_id)
+            if chat['state'] == "register":
+                msg = "Registering not done (free)"
+                self.send_message(msg, t_id)
+            elif chat['state'] == "queued":
+                msg = "Please wait, searching for a match!"
+                self.send_message(msg, t_id)
+            elif chat['state'] == "report":
+                msg = "Reporting not done (free)"
+                self.send_message(msg, t_id)
+            else:
+                msg = "Unknown command"
+                self.send_message(msg, t_id)
 
         return JsonResponse({"ok": "POST request processed"})
 
