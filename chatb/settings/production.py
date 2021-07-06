@@ -4,7 +4,7 @@ from pymongo import MongoClient  # noqa
 
 from chatb.settings.base import *  # noqa
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS.append("jared-chat-bot.herokuapp.com")
 
