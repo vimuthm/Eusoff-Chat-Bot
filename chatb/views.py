@@ -44,8 +44,10 @@ class ChatBotView(View):
         print(t_message)
         print(t_data)
         t_chat = t_message["chat"]
-        # t_message_id = t_message["message_id"]
         t_id = t_chat["id"]
+        self.send_message("test", t_id)
+
+        # t_message_id = t_message["message_id"]
 
         # callbackData = t_data["data"]
         # command = callbackData.split('-')[0]
