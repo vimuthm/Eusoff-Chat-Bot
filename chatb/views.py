@@ -42,7 +42,7 @@ class ChatBotView(View):
         t_data = json.loads(request.body)
         t_message = t_data["message"]
         t_chat = t_message["chat"]
-        t_message_id = t_message["message_id"]
+        # t_message_id = t_message["message_id"]
         t_id = t_chat["id"]
 
         # callbackData = t_data["data"]
@@ -140,6 +140,8 @@ class ChatBotView(View):
         else:
             msg = "Unknown command"
             self.send_message(msg, t_id)
+
+        print("done")
 
         return JsonResponse({"ok": "POST request processed"})
 
