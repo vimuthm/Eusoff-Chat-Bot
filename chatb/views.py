@@ -58,7 +58,6 @@ class ChatBotView(View):
         print(text + str(t_id))
 
         chat = chatb_collection.find_one(self.queryChatId(t_id))
-        self.send_message("wtffff", t_id)
 
         if not chat:
             if text != "register":
@@ -144,7 +143,9 @@ class ChatBotView(View):
             if chat['state'] == "register":
                 try:
                     name, room = text.split(' ')
+                    print(room)
                     self.checkRoomValidity(room)
+                    print("passed")
                     chatb_collection.update_one(
                         self.queryChatId(t_id), 
                         {"$set": {"state": "untethered", 
