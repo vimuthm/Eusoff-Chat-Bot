@@ -87,8 +87,8 @@ class ChatBotView(View):
             sentMessage = self.send_message(waitMessage, t_id)
             count = 0
             while inQueue == 1:
-                waitMessage = waitMessage + (count % 3) * "."
-                self.update_message(waitMessage, t_id, sentMessage['result']['message_id'])
+                waitMessageX = waitMessage + (count % 3) * "."
+                self.update_message(waitMessageX, t_id, sentMessage['result']['message_id'])
                 inQueue = chatb_collection.count_documents({"state": "queued"})
                 count += 1
             if inQueue > 1:
