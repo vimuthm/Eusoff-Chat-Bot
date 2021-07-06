@@ -59,12 +59,17 @@ class ChatBotView(View):
         text = text.lstrip("/")
         print(text)
 
-        chat = chatb_collection.find_one(queryChatId(t_id))
+        # chat = chatb_collection.find_one(queryChatId(t_id))
+        chat = chatb_collection.find_one({"chat_id": t_id})
+        print("wah")
+
         if not chat:
             if text != "register":
+                print("not reg")
                 msg = "You don't seem to be registered yet! Use /register"
                 self.send_message(msg, t_id)
             else:
+                print("registering")
                 msg = "Please enter your name and room"
                 reply_markup = {"force_reply": True, "input_field_placeholder": "John A101"}
                 self.send_message(msg, t_id, reply_markup)
@@ -107,14 +112,13 @@ class ChatBotView(View):
                     queryChatId(person2), 
                     {"$set": {"state": "matched"}}
                 )
-
-        # elif chat.state == "matched":
-        #     if text == "end":
-        #         self.send_message("End not done", t_id)
-        #     elif text == "report":
-        #         self.send_message("Report not done", t_id)
-        #     else:
-        #         self.send_message("Anon chat not done", t_id)
+        elif chat['state'] == "matched":
+            if text == "end":
+                self.send_message("End not done", t_id)
+            elif text == "report":
+                self.send_message("Report not done", t_id)
+            else:
+                self.send_message("Anon chat not done", t_id)
         elif text == "+":
             chat["counter"] += 1
             chatb_collection.save(chat)
