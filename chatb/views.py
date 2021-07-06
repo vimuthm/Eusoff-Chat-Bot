@@ -88,7 +88,7 @@ class ChatBotView(View):
             count = 0
             while inQueue == 1:
                 waitMessage = waitMessage + (count % 3) * "."
-                self.update_message(waitMessage, t_id, sentMessage.result.message_id)
+                self.update_message(waitMessage, t_id, sentMessage['result']['message_id'])
                 inQueue = chatb_collection.count_documents({"state": "queued"})
                 count += 1
             if inQueue > 1:
@@ -131,6 +131,13 @@ class ChatBotView(View):
             self.send_message(msg, t_id)
         else:
             if chat['state'] == "register":
+                name, room = text.split(' ')
+                chatb_collection.update_one(
+                    self.queryChatId(t_id), 
+                    {"$set": {"state": "untethered", 
+                              "name": name,
+                              "room": room}}
+                )
                 msg = "Registering not done (free)"
                 self.send_message(msg, t_id)
             elif chat['state'] == "queued":
