@@ -1,12 +1,12 @@
-import os # noqa
+import os  # noqa
 
-from pymongo import MongoClient # noqa
+from pymongo import MongoClient  # noqa
 
 from chatb.settings.base import *  # noqa
 
 DEBUG = False
 
-ALLOWED_HOSTS.append("eusoffchatbot.herokuapp.com")
+ALLOWED_HOSTS.append("jared-chat-bot.herokuapp.com/")
 
 mongodb_user = os.getenv("MONGO_USER")
 mongodb_password = os.getenv("MONGO_PASSWORD")
