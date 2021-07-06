@@ -68,7 +68,7 @@ class ChatBotView(View):
                 print("registering")
                 msg = "Please enter your name and room. Ex: John A101"
                 reply_markup = """{"force_reply": true, "input_field_placeholder": "John A101"}"""
-                self.send_message(msg, t_id, json.laods(reply_markup))
+                self.send_message(msg, t_id, json.loads(reply_markup))
                 chat = {
                     "chat_id": t_id,
                     "counter": 0,
