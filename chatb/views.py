@@ -69,7 +69,7 @@ class ChatBotView(View):
                 print("registering")
                 msg = "Please enter your name and room. Ex: John A101"
                 reply_markup = {"force_reply": True, "input_field_placeholder": "John A101"}
-                self.send_message(msg, t_id)
+                self.send_message(msg, t_id, reply_markup)
                 chat = {
                     "chat_id": t_id,
                     "counter": 0,
@@ -142,15 +142,20 @@ class ChatBotView(View):
             self.send_message(msg, t_id)
         else:
             if chat['state'] == "register":
-                name, room = text.split(' ')
-                chatb_collection.update_one(
-                    self.queryChatId(t_id), 
-                    {"$set": {"state": "untethered", 
-                              "name": name,
-                              "room": room}}
-                )
-                msg = "Registering not done (free)"
-                self.send_message(msg, t_id)
+                try:
+                    name, room = text.split(' ')
+                    checkRoomValidity(room)
+                    chatb_collection.update_one(
+                        self.queryChatId(t_id), 
+                        {"$set": {"state": "untethered", 
+                                  "name": name,
+                                  "room": room}}
+                    )
+                    msg = "Successfully registered!"
+                    self.send_message(msg, t_id)
+                except Exception as e:
+                    msg = "Please follow the format, John A101"
+                    self.send_message(msg, t_id)
             elif chat['state'] == "queued":
                 msg = "Please wait, searching for a match!"
                 self.send_message(msg, t_id)
@@ -169,7 +174,7 @@ class ChatBotView(View):
             "chat_id": chat_id,
             "text": message,
             "parse_mode": "Markdown",
-            "reply_markup": {"force_reply": True},
+            "reply_markup": reply_markup,
             "disable_notification": notif
         }
         response = requests.post(
@@ -193,3 +198,12 @@ class ChatBotView(View):
     @staticmethod
     def queryChatId(chat_id):
         return {"chat_id": chat_id}
+
+    @staticmethod
+    def checkRoomValidity(room):
+        if not (room[0].lower() >= 'a' and 
+                room[0].lower() <= 'e' and 
+                int(room[1]) >= 1 and 
+                int(room[1] <= 4)):
+            raise Exception('Invalid room!')
+        
