@@ -58,6 +58,7 @@ class ChatBotView(View):
         print(text + str(t_id))
 
         chat = chatb_collection.find_one(self.queryChatId(t_id))
+        self.send_message("wtffff", t_id)
 
         if not chat:
             if text != "register":
@@ -67,8 +68,8 @@ class ChatBotView(View):
             else:
                 print("registering")
                 msg = "Please enter your name and room. Ex: John A101"
-                reply_markup = """{"force_reply": true, "input_field_placeholder": "John A101"}"""
-                self.send_message(msg, t_id, json.loads(reply_markup))
+                reply_markup = {"force_reply": True, "input_field_placeholder": "John A101"}
+                self.send_message(msg, t_id)
                 chat = {
                     "chat_id": t_id,
                     "counter": 0,
@@ -168,11 +169,11 @@ class ChatBotView(View):
             "chat_id": chat_id,
             "text": message,
             "parse_mode": "Markdown",
-            "reply_markup": reply_markup,
+            "reply_markup": {"force_reply": True},
             "disable_notification": notif
         }
         response = requests.post(
-            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", data=data
+            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", data=json.dumps(data)
         )
         return response.json()
 
