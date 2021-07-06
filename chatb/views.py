@@ -42,6 +42,7 @@ class ChatBotView(View):
         t_data = json.loads(request.body)
         t_message = t_data["message"]
         print(t_message)
+        print(t_data)
         t_chat = t_message["chat"]
         # t_message_id = t_message["message_id"]
         t_id = t_chat["id"]
