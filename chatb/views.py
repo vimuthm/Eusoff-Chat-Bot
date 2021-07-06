@@ -68,7 +68,7 @@ class ChatBotView(View):
                 print("registering")
                 msg = "Please enter your name and room. Ex: John A101"
                 reply_markup = {"force_reply": True, "input_field_placeholder": "John A101"}
-                self.send_message(msg, t_id, reply_markup)
+                self.send_message(msg, t_id, reply_markup = reply_markup)
                 chat = {
                     "chat_id": t_id,
                     "counter": 0,
@@ -83,7 +83,7 @@ class ChatBotView(View):
             self.send_message(helpText, t_id)
         elif text == "match":
             queue.append(t_id)
-            print("after append" + ' '.join([str(elem) for elem in queue]))
+            print("after append " + ' '.join([str(elem) for elem in queue]))
             chatb_collection.update_one(self.queryChatId(t_id), {"$set": {"state": "queued"}})
             inQueue = chatb_collection.count_documents({"state": "queued"})
             waitMessage = "Looking for another Eusoffian."
@@ -205,6 +205,6 @@ class ChatBotView(View):
         if not (room[0].lower() >= 'a' and 
                 room[0].lower() <= 'e' and 
                 int(room[1]) >= 1 and 
-                int(room[1] <= 4)):
+                int(room[1]) <= 4):
             raise Exception('Invalid room!')
         
