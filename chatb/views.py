@@ -84,7 +84,7 @@ class ChatBotView(View):
             chatb_collection.update_one(self.queryChatId(t_id), {"$set": {"state": "queued"}})
             inQueue = chatb_collection.count_documents({"state": "queued"})
             waitMessage = "Looking for another Eusoffian."
-            sentMessage = self.send_message(waitMessage, t_id)
+            sentMessage = self.send_message(waitMessage, t_id, '', False)
             count = 0
             while inQueue == 1:
                 waitMessageX = waitMessage + (count % 3) * "."
@@ -92,9 +92,10 @@ class ChatBotView(View):
                 inQueue = chatb_collection.count_documents({"state": "queued"})
                 count += 1
             if inQueue > 1:
-                personsInQueue = chatb_collection.find({"state": "queued"}).toArray()
-                person1 = personsInQueue[0]
-                person2 = personsInQueue[1]
+                personsInQueue = chatb_collection.find({"state": "queued"})
+
+                person1 = personsInQueue[0]["chat_id"]
+                person2 = personsInQueue[1]["chat_id"]
                 chatb_collection.update_one(
                     self.queryChatId(person1), 
                     {"$set": {"match_id": person2}}
@@ -153,12 +154,13 @@ class ChatBotView(View):
         return JsonResponse({"ok": "POST request processed"})
 
     @staticmethod
-    def send_message(message, chat_id, reply_markup=''):
+    def send_message(message, chat_id, reply_markup = '', notif = True):
         data = {
             "chat_id": chat_id,
             "text": message,
             "parse_mode": "Markdown",
-            "reply_markup": reply_markup
+            "reply_markup": reply_markup,
+            "disable_notification": notif
         }
         response = requests.post(
             f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", data=data
