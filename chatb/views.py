@@ -59,8 +59,7 @@ class ChatBotView(View):
         text = text.lstrip("/")
         print(text)
 
-        # chat = chatb_collection.find_one(queryChatId(t_id))
-        chat = chatb_collection.find_one({"chat_id": t_id})
+        chat = chatb_collection.find_one(self.queryChatId(t_id))
         print("wah")
 
         if not chat:
@@ -87,7 +86,7 @@ class ChatBotView(View):
             print("about to append")
             queue.append(t_id)
             print("appended")
-            chatb_collection.update_one(queryChatId(t_id), {"$set": {"state": "queued"}})
+            chatb_collection.update_one(self.queryChatId(t_id), {"$set": {"state": "queued"}})
             print("updated query")
             waitMessage = "Looking for another Eusoffian."
             sentMessage = self.send_message(waitMessage, t_id)
@@ -100,19 +99,19 @@ class ChatBotView(View):
                 person1 = queue.pop(0)
                 person2 = queue.pop(0)
                 chatb_collection.update_one(
-                    queryChatId(person1), 
+                    self.queryChatId(person1), 
                     {"$set": {"match_id": person2}}
                 )
                 chatb_collection.update_one(
-                    queryChatId(person2), 
+                    self.queryChatId(person2), 
                     {"$set": {"match_id": person1}}
                 )
                 chatb_collection.update_one(
-                    queryChatId(person1), 
+                    self.queryChatId(person1), 
                     {"$set": {"state": "matched"}}
                 )
                 chatb_collection.update_one(
-                    queryChatId(person2), 
+                    self.queryChatId(person2), 
                     {"$set": {"state": "matched"}}
                 )
         elif chat['state'] == "matched":
