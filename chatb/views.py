@@ -55,7 +55,7 @@ class ChatBotView(View):
                 return JsonResponse({"ok": "POST request processed"})
 
         text = text.lstrip("/")
-        print(text + t_id)
+        print(text + str(t_id))
 
         chat = chatb_collection.find_one(self.queryChatId(t_id))
 
