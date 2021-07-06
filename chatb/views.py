@@ -84,8 +84,11 @@ class ChatBotView(View):
         elif text == "start":
             self.send_message(startText, t_id)
         elif text == "match":
+            print("about to append")
             queue.append(t_id)
+            print("appended")
             chatb_collection.update_one(queryChatId(t_id), {"$set": {"state": "queued"}})
+            print("updated query")
             waitMessage = "Looking for another Eusoffian."
             sentMessage = self.send_message(waitMessage, t_id)
             count = 0
