@@ -43,8 +43,8 @@ class ChatBotView(View):
         t_message_id = t_message["message_id"]
         t_id = t_chat["id"]
 
-        callbackData = t_data["data"]
-        command = callbackData.split('-')[0]
+        # callbackData = t_data["data"]
+        # command = callbackData.split('-')[0]
 
         try:
             text = t_message["text"].strip().lower()
