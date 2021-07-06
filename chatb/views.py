@@ -30,8 +30,6 @@ startText = """Hi there and Welcome to the Eusoff Chat Bot. You can use this bot
             can rate the conversation as well. 
             """ + helpText
 
-queue = []
-
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
@@ -82,21 +80,17 @@ class ChatBotView(View):
         elif text == "help":
             self.send_message(helpText, t_id)
         elif text == "match":
-            queue.append(t_id)
-            print("after append " + ' '.join([str(elem) for elem in queue]))
             chatb_collection.update_one(self.queryChatId(t_id), {"$set": {"state": "queued"}})
             inQueue = chatb_collection.count_documents({"state": "queued"})
             waitMessage = "Looking for another Eusoffian."
             sentMessage = self.send_message(waitMessage, t_id, '', False)
             count = 0
-            # while inQueue == 1:
-            while len(queue) == 1:
+            while inQueue == 1:
                 waitMessageX = waitMessage + (count % 3) * "."
                 self.update_message(waitMessageX, t_id, sentMessage['result']['message_id'])
                 inQueue = chatb_collection.count_documents({"state": "queued"})
                 count += 1
-            # if inQueue > 1:
-            if len(queue) > 1:
+            if inQueue > 1:
                 personsInQueue = chatb_collection.find({"state": "queued"})
 
                 person1 = personsInQueue[0]["chat_id"]
