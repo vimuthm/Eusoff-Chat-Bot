@@ -35,8 +35,6 @@ queue = []
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
-        print("HERE")
-        print(request)
         t_data = json.loads(request.body)
         t_message = t_data["message"]
         t_chat = t_message["chat"]
@@ -83,11 +81,9 @@ class ChatBotView(View):
         elif text == "start":
             self.send_message(startText, t_id)
         elif text == "match":
-            print("about to append")
             queue.append(t_id)
-            print("appended")
+            print("after append" + queue)
             chatb_collection.update_one(self.queryChatId(t_id), {"$set": {"state": "queued"}})
-            print("updated query")
             waitMessage = "Looking for another Eusoffian."
             sentMessage = self.send_message(waitMessage, t_id)
             count = 0
@@ -149,6 +145,7 @@ class ChatBotView(View):
         response = requests.post(
             f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", data=data
         )
+        return response
 
     @staticmethod
     def update_message(message, chat_id, message_id, reply_markup=''):
