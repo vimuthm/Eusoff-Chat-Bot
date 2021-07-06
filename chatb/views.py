@@ -83,8 +83,8 @@ class ChatBotView(View):
         elif text == "help":
             self.send_message(helpText, t_id)
         elif text == "match":
-            # queue.append(t_id)
-            # print("after append" + ' '.join([str(elem) for elem in queue]))
+            queue.append(t_id)
+            print("after append" + ' '.join([str(elem) for elem in queue]))
             chatb_collection.update_one(self.queryChatId(t_id), {"$set": {"state": "queued"}})
             inQueue = chatb_collection.count_documents({"state": "queued"})
             waitMessage = "Looking for another Eusoffian."
@@ -144,7 +144,7 @@ class ChatBotView(View):
             if chat['state'] == "register":
                 try:
                     name, room = text.split(' ')
-                    checkRoomValidity(room)
+                    self.checkRoomValidity(room)
                     chatb_collection.update_one(
                         self.queryChatId(t_id), 
                         {"$set": {"state": "untethered", 
