@@ -163,7 +163,7 @@ class ChatBotView(View):
         response = requests.post(
             f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", data=data
         )
-        return json.loads(response)
+        return response.json()
 
     @staticmethod
     def update_message(message, chat_id, message_id, reply_markup=''):
