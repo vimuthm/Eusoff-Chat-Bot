@@ -53,10 +53,9 @@ class ChatBotView(View):
                 return JsonResponse({"ok": "POST request processed"})
 
         text = text.lstrip("/")
-        print(text)
+        print(text + str(t_id))
 
         chat = chatb_collection.find_one(self.queryChatId(t_id))
-        print("wah")
 
         if not chat:
             if text != "register":
@@ -65,9 +64,9 @@ class ChatBotView(View):
                 self.send_message(msg, t_id)
             else:
                 print("registering")
-                msg = "Please enter your name and room"
+                msg = "Please enter your name and room. Ex: John A101"
                 reply_markup = {"force_reply": True, "input_field_placeholder": "John A101"}
-                self.send_message(msg, t_id, reply_markup)
+                self.send_message(msg, t_id, reply_markup = reply_markup)
                 chat = {
                     "chat_id": t_id,
                     "counter": 0,
@@ -78,9 +77,9 @@ class ChatBotView(View):
                 # chat["_id"] = response.inserted_id
         elif text == "start":
             self.send_message(startText, t_id)
+        elif text == "help":
+            self.send_message(helpText, t_id)
         elif text == "match":
-            # queue.append(t_id)
-            # print("after append" + ' '.join([str(elem) for elem in queue]))
             chatb_collection.update_one(self.queryChatId(t_id), {"$set": {"state": "queued"}})
             inQueue = chatb_collection.count_documents({"state": "queued"})
             waitMessage = "Looking for another Eusoffian."
@@ -112,6 +111,10 @@ class ChatBotView(View):
                     self.queryChatId(person2), 
                     {"$set": {"state": "matched"}}
                 )
+
+                successMessage = "You have been matched! Have fun!"
+                self.send_message(successMessage, person1)
+                self.send_message(successMessage, person2)
         elif chat['state'] == "matched":
             if text == "end":
                 self.send_message("End not done", t_id)
@@ -132,15 +135,22 @@ class ChatBotView(View):
             self.send_message(msg, t_id)
         else:
             if chat['state'] == "register":
-                name, room = text.split(' ')
-                chatb_collection.update_one(
-                    self.queryChatId(t_id), 
-                    {"$set": {"state": "untethered", 
-                              "name": name,
-                              "room": room}}
-                )
-                msg = "Registering not done (free)"
-                self.send_message(msg, t_id)
+                try:
+                    name, room = text.split(' ')
+                    print(room)
+                    self.checkRoomValidity(room)
+                    print("passed")
+                    chatb_collection.update_one(
+                        self.queryChatId(t_id), 
+                        {"$set": {"state": "untethered", 
+                                  "name": name,
+                                  "room": room}}
+                    )
+                    msg = "Successfully registered!"
+                    self.send_message(msg, t_id)
+                except Exception as e:
+                    msg = "Please follow the format, John A101"
+                    self.send_message(msg, t_id)
             elif chat['state'] == "queued":
                 msg = "Please wait, searching for a match!"
                 self.send_message(msg, t_id)
@@ -163,7 +173,7 @@ class ChatBotView(View):
             "disable_notification": notif
         }
         response = requests.post(
-            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", data=data
+            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json=(data)
         )
         return response.json()
 
@@ -183,3 +193,12 @@ class ChatBotView(View):
     @staticmethod
     def queryChatId(chat_id):
         return {"chat_id": chat_id}
+
+    @staticmethod
+    def checkRoomValidity(room):
+        if not (room[0].lower() >= 'a' and 
+                room[0].lower() <= 'e' and 
+                int(room[1]) >= 1 and 
+                int(room[1]) <= 4):
+            raise Exception('Invalid room!')
+        
