@@ -173,7 +173,7 @@ class ChatBotView(View):
             "disable_notification": notif
         }
         response = requests.post(
-            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", data=json.dumps(data)
+            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json=(data)
         )
         return response.json()
 
