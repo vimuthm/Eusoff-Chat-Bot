@@ -55,10 +55,9 @@ class ChatBotView(View):
                 return JsonResponse({"ok": "POST request processed"})
 
         text = text.lstrip("/")
-        print(text)
+        print(text + self.queryChatId(t_id))
 
         chat = chatb_collection.find_one(self.queryChatId(t_id))
-        print("wah")
 
         if not chat:
             if text != "register":
@@ -67,9 +66,8 @@ class ChatBotView(View):
                 self.send_message(msg, t_id)
             else:
                 print("registering")
-                msg = "Please enter your name and room"
-                reply_markup = {"force_reply": True, "input_field_placeholder": "John A101"}
-                self.send_message("ksadhskfa", t_id)
+                msg = "Please enter your name and room. Ex: John A101"
+                reply_markup = {"force_reply": true, "input_field_placeholder": "John A101"}
                 self.send_message(msg, t_id, reply_markup)
                 chat = {
                     "chat_id": t_id,
