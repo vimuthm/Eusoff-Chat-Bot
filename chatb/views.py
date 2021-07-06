@@ -31,6 +31,8 @@ startText = """Hi there and Welcome to the Eusoff Chat Bot. You can use this bot
             """ + helpText
 
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
+
+
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
         t_data = json.loads(request.body)
@@ -38,6 +40,7 @@ class ChatBotView(View):
         t_chat = t_message["chat"]
         t_message_id = t_message["message_id"]
         t_id = t_chat["id"]
+        print(t_message)
 
         # callbackData = t_data["data"]
         # command = callbackData.split('-')[0]
@@ -66,7 +69,8 @@ class ChatBotView(View):
             else:
                 print("registering")
                 msg = "Please enter your name and room"
-                reply_markup = {"force_reply": True, "input_field_placeholder": "John A101"}
+                reply_markup = {"force_reply": True,
+                                "input_field_placeholder": "John A101"}
                 self.send_message(msg, t_id, reply_markup)
                 chat = {
                     "chat_id": t_id,
@@ -81,14 +85,16 @@ class ChatBotView(View):
         elif text == "match":
             # queue.append(t_id)
             # print("after append" + ' '.join([str(elem) for elem in queue]))
-            chatb_collection.update_one(self.queryChatId(t_id), {"$set": {"state": "queued"}})
+            chatb_collection.update_one(self.queryChatId(
+                t_id), {"$set": {"state": "queued"}})
             inQueue = chatb_collection.count_documents({"state": "queued"})
             waitMessage = "Looking for another Eusoffian."
             sentMessage = self.send_message(waitMessage, t_id, '', False)
             count = 0
             while inQueue == 1:
                 waitMessageX = waitMessage + (count % 3) * "."
-                self.update_message(waitMessageX, t_id, sentMessage['result']['message_id'])
+                self.update_message(waitMessageX, t_id,
+                                    sentMessage['result']['message_id'])
                 inQueue = chatb_collection.count_documents({"state": "queued"})
                 count += 1
             if inQueue > 1:
@@ -97,19 +103,19 @@ class ChatBotView(View):
                 person1 = personsInQueue[0]["chat_id"]
                 person2 = personsInQueue[1]["chat_id"]
                 chatb_collection.update_one(
-                    self.queryChatId(person1), 
+                    self.queryChatId(person1),
                     {"$set": {"match_id": person2}}
                 )
                 chatb_collection.update_one(
-                    self.queryChatId(person2), 
+                    self.queryChatId(person2),
                     {"$set": {"match_id": person1}}
                 )
                 chatb_collection.update_one(
-                    self.queryChatId(person1), 
+                    self.queryChatId(person1),
                     {"$set": {"state": "matched"}}
                 )
                 chatb_collection.update_one(
-                    self.queryChatId(person2), 
+                    self.queryChatId(person2),
                     {"$set": {"state": "matched"}}
                 )
         elif chat['state'] == "matched":
@@ -134,8 +140,8 @@ class ChatBotView(View):
             if chat['state'] == "register":
                 name, room = text.split(' ')
                 chatb_collection.update_one(
-                    self.queryChatId(t_id), 
-                    {"$set": {"state": "untethered", 
+                    self.queryChatId(t_id),
+                    {"$set": {"state": "untethered",
                               "name": name,
                               "room": room}}
                 )
@@ -154,7 +160,7 @@ class ChatBotView(View):
         return JsonResponse({"ok": "POST request processed"})
 
     @staticmethod
-    def send_message(message, chat_id, reply_markup = '', notif = True):
+    def send_message(message, chat_id, reply_markup='', notif=True):
         data = {
             "chat_id": chat_id,
             "text": message,
