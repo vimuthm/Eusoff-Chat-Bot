@@ -33,6 +33,8 @@ startText = """Hi there and Welcome to the Eusoff Chat Bot. You can use this bot
 queue = []
 
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
+
+
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
         print("HERE")
@@ -71,7 +73,8 @@ class ChatBotView(View):
             else:
                 print("registering")
                 msg = "Please enter your name and room"
-                reply_markup = {"force_reply": True, "input_field_placeholder": "John A101"}
+                reply_markup = {"force_reply": True,
+                                "input_field_placeholder": "John A101"}
                 self.send_message(msg, t_id, reply_markup)
                 chat = {
                     "chat_id": t_id,
@@ -87,7 +90,8 @@ class ChatBotView(View):
             print("about to append")
             queue.append(t_id)
             print("appended")
-            chatb_collection.update_one(queryChatId(t_id), {"$set": {"state": "queued"}})
+            chatb_collection.update_one(queryChatId(
+                t_id), {"$set": {"state": "queued"}})
             print("updated query")
             waitMessage = "Looking for another Eusoffian."
             sentMessage = self.send_message(waitMessage, t_id)
@@ -100,19 +104,19 @@ class ChatBotView(View):
                 person1 = queue.pop(0)
                 person2 = queue.pop(0)
                 chatb_collection.update_one(
-                    queryChatId(person1), 
+                    queryChatId(person1),
                     {"$set": {"match_id": person2}}
                 )
                 chatb_collection.update_one(
-                    queryChatId(person2), 
+                    queryChatId(person2),
                     {"$set": {"match_id": person1}}
                 )
                 chatb_collection.update_one(
-                    queryChatId(person1), 
+                    queryChatId(person1),
                     {"$set": {"state": "matched"}}
                 )
                 chatb_collection.update_one(
-                    queryChatId(person2), 
+                    queryChatId(person2),
                     {"$set": {"state": "matched"}}
                 )
         elif chat['state'] == "matched":
