@@ -84,7 +84,7 @@ class ChatBotView(View):
         elif text == "start":
             self.send_message(startText, t_id)
         elif text == "register":
-            returnMessage = "Welcome back, {name}".format(chat['name'])
+            returnMessage = "Welcome back, {name}".format(name=chat['name'])
             self.send_message(returnMessage, t_id)
         elif text == "help":
             self.send_message(helpText, t_id)
