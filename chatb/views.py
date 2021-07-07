@@ -84,7 +84,8 @@ class ChatBotView(View):
         elif chat['state'] == "matched":
             if text == "end":
                 person1 = t_id
-                person2 = chatb_collection.find({"match_id": person1})
+                person2 = chatb_collection.find(
+                    {"chat_id": person1})[0]["match_id"]
                 print(person2)
 
                 self.send_message("End not done", t_id)
