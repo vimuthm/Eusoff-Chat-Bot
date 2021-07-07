@@ -59,7 +59,8 @@ class ChatBotView(View):
         print(text)
 
         chat = chatb_collection.find_one(self.queryChatId(t_id))
-        print("wah")
+        print("this is chat")
+        print(chat)
 
         if not chat:
             if text != "register":
