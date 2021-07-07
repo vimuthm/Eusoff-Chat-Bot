@@ -102,6 +102,7 @@ class ChatBotView(View):
                                     sentMessage['result']['message_id'])
                 inQueue = chatb_collection.count_documents({"state": "queued"})
                 count += 1
+                print("im in matching")
                 if count > 60:
                     break
             if inQueue > 1:
