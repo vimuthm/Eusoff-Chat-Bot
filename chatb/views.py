@@ -61,13 +61,14 @@ class ChatBotView(View):
         chat = chatb_collection.find_one(self.queryChatId(t_id))
         print("this is chat")
         print(chat)
+
         keyboard = {
-        inline_keyboard: [
-            [
-                {text: "1", callback_data: 1}
-            ]
-        ]
-        self.send_message("test", t_id, keyboard)
+            "inline_keyboard": [
+                [
+                    {"text": "1", "callback_data": 1}
+                ]
+            ]}
+        self.send_message("test", t_id, reply_markup=keyboard)
 
         if not chat:
             if text != "register":
