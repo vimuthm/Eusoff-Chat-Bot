@@ -103,7 +103,7 @@ class ChatBotView(View):
                 inQueue = chatb_collection.count_documents({"state": "queued"})
                 count += 1
                 print("im in matching")
-                if count > 60:
+                if count > 20:
                     break
             if inQueue > 1:
                 personsInQueue = chatb_collection.find({"state": "queued"})
