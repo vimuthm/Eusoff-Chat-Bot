@@ -27,7 +27,7 @@ helpText = """
 
 startText = """Hi there and Welcome to the Eusoff Chat Bot. You can use this bot
             to match and anonymously chat with other Eusoffians. At the end, you
-            can rate the conversation as well. 
+            can rate the conversation as well.
             """ + helpText
 
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
@@ -61,15 +61,13 @@ class ChatBotView(View):
         chat = chatb_collection.find_one(self.queryChatId(t_id))
         print("this is chat")
         print(chat)
-        keyboard = [
+        keyboard = {
+        inline_keyboard: [
             [
-                InlineKeyboardButton("1", callback_data='1'),
-                InlineKeyboardButton("2", callback_data='2'),
+                {text: "1", callback_data: 1}
             ]
         ]
-
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        self.send_message(test, t_id, keyboard)
+        self.send_message("test", t_id, keyboard)
 
         if not chat:
             if text != "register":
@@ -211,7 +209,7 @@ class ChatBotView(View):
 
         return JsonResponse({"ok": "POST request processed"})
 
-    @staticmethod
+    @ staticmethod
     def send_message(message, chat_id, reply_markup='', notif=True):
         data = {
             "chat_id": chat_id,
@@ -225,7 +223,7 @@ class ChatBotView(View):
         )
         return response.json()
 
-    @staticmethod
+    @ staticmethod
     def update_message(message, chat_id, message_id, reply_markup=''):
         data = {
             "chat_id": chat_id,
@@ -238,11 +236,11 @@ class ChatBotView(View):
             f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/editMessageText", data=data
         )
 
-    @staticmethod
+    @ staticmethod
     def queryChatId(chat_id):
         return {"chat_id": chat_id}
 
-    @staticmethod
+    @ staticmethod
     def checkRoomValidity(room):
         if not (room[0].lower() >= 'a' and
                 room[0].lower() <= 'e' and
