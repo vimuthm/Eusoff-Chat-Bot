@@ -85,7 +85,7 @@ class ChatBotView(View):
             self.send_message(startText, t_id)
         elif text == "register":
             registeredMessage = "You have already been registered, {name}.".format(
-                name=chat['name'].capitalize)
+                name=chat['name'])
             self.send_message(registeredMessage, t_id)
         elif text == "help":
             self.send_message(helpText, t_id)
