@@ -106,6 +106,8 @@ class ChatBotView(View):
                     terminateMessage = "Sorry, there are no Eusoffians available at the moment."
                     self.update_message(
                         terminateMessage, t_id, sentMessage['result']['message_id'])
+                    chatb_collection.update_one(self.queryChatId(
+                        t_id), {"$set": {"state": "untethered"}})
                     break
             if inQueue > 1:
                 personsInQueue = chatb_collection.find({"state": "queued"})
