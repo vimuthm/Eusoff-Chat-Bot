@@ -83,11 +83,15 @@ class ChatBotView(View):
                 # chat["_id"] = response.inserted_id
         elif chat['state'] == "matched":
             if text == "end":
+                person1 = t_id
+                person2 = chatb_collection.find({"match_id": person1})
+                print(person2)
+
                 self.send_message("End not done", t_id)
             elif text == "report":
                 self.send_message("Report not done", t_id)
             else:
-                self.send_message("Anon chat not done", t_id) 
+                self.send_message("Anon chat not done", t_id)
         elif text == "start":
             self.send_message(startText, t_id)
         elif text == "register":
@@ -96,7 +100,7 @@ class ChatBotView(View):
             self.send_message(registeredMessage, t_id)
         elif text == "help":
             self.send_message(helpText, t_id)
-           
+
         elif text == "match":
             chatb_collection.update_one(self.queryChatId(
                 t_id), {"$set": {"state": "queued"}})
