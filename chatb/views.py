@@ -81,6 +81,13 @@ class ChatBotView(View):
                 response = chatb_collection.insert_one(chat)
                 # # we want chat obj to be the same as fetched from collection
                 # chat["_id"] = response.inserted_id
+        elif chat['state'] == "matched":
+            if text == "end":
+                self.send_message("End not done", t_id)
+            elif text == "report":
+                self.send_message("Report not done", t_id)
+            else:
+                self.send_message("Anon chat not done", t_id) 
         elif text == "start":
             self.send_message(startText, t_id)
         elif text == "register":
@@ -89,6 +96,7 @@ class ChatBotView(View):
             self.send_message(registeredMessage, t_id)
         elif text == "help":
             self.send_message(helpText, t_id)
+           
         elif text == "match":
             chatb_collection.update_one(self.queryChatId(
                 t_id), {"$set": {"state": "queued"}})
@@ -134,13 +142,6 @@ class ChatBotView(View):
                 successMessage = "You have been matched! Have fun!"
                 self.send_message(successMessage, person1)
                 self.send_message(successMessage, person2)
-        elif chat['state'] == "matched":
-            if text == "end":
-                self.send_message("End not done", t_id)
-            elif text == "report":
-                self.send_message("Report not done", t_id)
-            else:
-                self.send_message("Anon chat not done", t_id)
         elif text == "+":
             chat["counter"] += 1
             chatb_collection.save(chat)
