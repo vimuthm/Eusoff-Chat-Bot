@@ -61,6 +61,15 @@ class ChatBotView(View):
         chat = chatb_collection.find_one(self.queryChatId(t_id))
         print("this is chat")
         print(chat)
+        keyboard = [
+            [
+                InlineKeyboardButton("1", callback_data='1'),
+                InlineKeyboardButton("2", callback_data='2'),
+            ]
+        ]
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        self.send_message(test, t_id, keyboard)
 
         if not chat:
             if text != "register":
@@ -86,15 +95,20 @@ class ChatBotView(View):
                 person1 = t_id
                 person2 = chatb_collection.find(
                     {"chat_id": person1})[0]["match_id"]
+
+                self.send_message(
+                    "Please rate the user you chatted with", person1, )
+                self.send_message(
+                    "Please rate the user you chatted with", person2)
                 chatb_collection.update_one(
                     self.queryChatId(person1),
-                    {"$set": {"match_id": "",
-                              "state": "untethered"}}
+                    {"$set": {"match_id": "", "state": "untethered"},
+                     "$inc": {"counter": 1}}
                 )
                 chatb_collection.update_one(
                     self.queryChatId(person2),
-                    {"$set": {"match_id": "",
-                              "state": "untethered"}}
+                    {"$set": {"match_id": "", "state": "untethered"},
+                     "$inc": {"counter": 1}}
                 )
 
                 self.send_message("End not done", t_id)
