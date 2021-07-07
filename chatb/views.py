@@ -102,8 +102,10 @@ class ChatBotView(View):
                                     sentMessage['result']['message_id'])
                 inQueue = chatb_collection.count_documents({"state": "queued"})
                 count += 1
-                print("im in matching")
                 if count > 20:
+                    terminateMessage = "Sorry, there are no Eusoffians available at the moment."
+                    self.update_message(
+                        terminateMessage, t_id, sentMessage['result']['message_id'])
                     break
             if inQueue > 1:
                 personsInQueue = chatb_collection.find({"state": "queued"})
