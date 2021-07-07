@@ -102,6 +102,8 @@ class ChatBotView(View):
                                     sentMessage['result']['message_id'])
                 inQueue = chatb_collection.count_documents({"state": "queued"})
                 count += 1
+                if count > 60:
+                    break
             if inQueue > 1:
                 personsInQueue = chatb_collection.find({"state": "queued"})
 
@@ -127,6 +129,10 @@ class ChatBotView(View):
                 successMessage = "You have been matched! Have fun!"
                 self.send_message(successMessage, person1)
                 self.send_message(successMessage, person2)
+
+        elif chat['state'] == "queued":
+            if text == "end":
+
         elif chat['state'] == "matched":
             if text == "end":
                 self.send_message("End not done", t_id)
