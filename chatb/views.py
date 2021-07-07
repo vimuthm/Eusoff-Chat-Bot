@@ -129,10 +129,6 @@ class ChatBotView(View):
                 successMessage = "You have been matched! Have fun!"
                 self.send_message(successMessage, person1)
                 self.send_message(successMessage, person2)
-
-        elif chat['state'] == "queued":
-            if text == "end":
-
         elif chat['state'] == "matched":
             if text == "end":
                 self.send_message("End not done", t_id)
