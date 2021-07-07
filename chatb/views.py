@@ -86,7 +86,16 @@ class ChatBotView(View):
                 person1 = t_id
                 person2 = chatb_collection.find(
                     {"chat_id": person1})[0]["match_id"]
-                print(person2)
+                chatb_collection.update_one(
+                    self.queryChatId(person1),
+                    {"$set": {"match_id": "",
+                              "state": "untethered"}}
+                )
+                chatb_collection.update_one(
+                    self.queryChatId(person2),
+                    {"$set": {"match_id": "",
+                              "state": "untethered"}}
+                )
 
                 self.send_message("End not done", t_id)
             elif text == "report":
