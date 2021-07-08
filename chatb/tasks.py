@@ -45,7 +45,7 @@ def match():
     if (inQueue % 2 == 1):
         global count
         global waitMessage
-        lastPerson = personsInQueue[inQueue - 1]
+        lastPerson = personsInQueue[inQueue - 1]["chat_id"]
         waitMessageX = waitMessage + count * "."
         sentMessage = send_message(waitMessageX, lastPerson, '', False)
         #debug stmt
