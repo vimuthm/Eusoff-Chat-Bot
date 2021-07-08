@@ -45,6 +45,8 @@ class ChatBotView(View):
             p2 = chatb_collection.find(
                 {"chat_id": p1})[0]["match_id"]
 
+            self.send_message("Thanks for the rating. Press /start to have another conversation.", t_id)
+
             chatb_collection.update_one(
                 self.queryChatId(p1), {"$unset": {"match_id": ""}})
 
@@ -126,11 +128,10 @@ class ChatBotView(View):
                     print("person2 is here")
 
                     self.send_message(
-                        "Please rate the user you chatted with", person1, reply_markup=keyboard)
+                        "Your conversation has ended. Please rate the user you chatted with", person1, reply_markup=keyboard)
                     self.send_message(
-                        "Please rate the user you chatted with", person2, reply_markup=keyboard)
+                        "Your conversation has ended. Please rate the user you chatted with", person2, reply_markup=keyboard)
 
-                    self.send_message("End not done", t_id)
                 elif text == "report":
                     self.send_message("Report not done", t_id)
                 else:
