@@ -122,10 +122,10 @@ class ChatBotView(View):
                         {"$set": {"state": "untethered"}}
                     )
 
-                    self.send_message(
-                        "Please rate the user you chatted with", person1, reply_markup=keyboard)
-                    self.send_message(
-                        "Please rate the user you chatted with", person2, reply_markup=keyboard)
+                    # self.send_message(
+                    #     "Please rate the user you chatted with", person1, reply_markup=keyboard)
+                    # self.send_message(
+                    #     "Please rate the user you chatted with", person2, reply_markup=keyboard)
 
                     self.send_message("End not done", t_id)
                 elif text == "report":
