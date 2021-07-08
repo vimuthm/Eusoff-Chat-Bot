@@ -41,10 +41,9 @@ class ChatBotView(View):
         t_message_id = t_message["message_id"]
         t_id = t_chat["id"]
         print(t_message)
-        print(t_data)
 
-        # callbackData = t_data["data"]
-        # command = callbackData.split('-')[0]
+        callbackData = t_data["data"]
+        command = callbackData.split('-')[0]
 
         try:
             text = t_message["text"].strip().lower()
@@ -60,7 +59,6 @@ class ChatBotView(View):
         print(text + str(t_id))
 
         chat = chatb_collection.find_one(self.queryChatId(t_id))
-        print("this is chat")
         print(chat)
 
         keyboard = {
@@ -74,7 +72,6 @@ class ChatBotView(View):
                 ]
             ]}
         self.send_message("test", t_id, reply_markup=keyboard)
-        print(self.send_message("test", t_id, reply_markup=keyboard))
 
         if not chat:
             if text != "register":
