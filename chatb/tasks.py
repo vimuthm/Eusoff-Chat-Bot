@@ -94,7 +94,7 @@ def train():
     trainer.train("chatterbot.corpus.english.conversations")
 
 def chatwAI(input):
-    return chatbot.get_response(input) 
+    return chatbot.get_response(input).text
 
 def send_message(message, chat_id, reply_markup='', notif=True):
     data = {

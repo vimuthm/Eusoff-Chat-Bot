@@ -19,4 +19,4 @@ trainer.train("chatterbot.corpus.english.conversations")
 def aiChat(input):
     return chatbot.get_response(input)
 
-print(aiChat("what are your thoughts on loki"))
+print(aiChat("what are your thoughts on loki").text)
