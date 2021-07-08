@@ -43,8 +43,8 @@ class ChatBotView(View):
             t_id = t_chat["id"]
             print("message")
             print(t_message)
-        elif "data" in t_data:
-            callbackData = t_data["data"]
+        elif "callback_query" in t_data:
+            callbackData = t_data["callback_query"]["data"]
             print("callback")
             print(callbackData)
         # command = callbackData.split('-')[0]
