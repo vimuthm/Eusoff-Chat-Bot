@@ -40,20 +40,14 @@ class ChatBotView(View):
             t_callbackQuery = t_data["callback_query"]
             t_id = t_callbackQuery["from"]["id"]
             t_callbackData = t_callbackQuery["data"]
-            print(t_callbackData)
-            print(type(t_callbackData))
 
             p1 = t_id
             p2_data = chatb_collection.find(
                 {"chat_id": p1})[0]
             p2 = p2_data["match_id"]
-            rating = int(t_callbackData)
 
             newRating = (
-                p2_data["rating"] * p2_data["numOfConvo"] + rating)/(p2_data["numOfConvo"] + 1)
-            print(chatb_collection.find(
-                {"chat_id": p1}))
-            print(p2_data)
+                p2_data["rating"] * p2_data["numOfConvo"] + int(t_callbackData))/(p2_data["numOfConvo"] + 1)
 
             self.send_message(
                 "Thanks for the rating. Press /match to have another conversation.", t_id)
@@ -90,10 +84,6 @@ class ChatBotView(View):
 
             chat = chatb_collection.find_one(self.queryChatId(t_id))
             print(chat)
-
-            print("foo")
-            print(t_data)
-            print("bar")
 
             if not chat:
                 if text != "register":
