@@ -18,20 +18,18 @@ TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
 # - matched
 # - report
 
-helpText = """
-            /start : To understand what this bot can do\n
-            /register : To register\n
-            /help : To get a list of bot commands\n
-            /match : To match with another Eusoffian\n
-            /end : To end a chat\n
-            /report : To report a user\n
-            """
+helpText = "/start : To understand what this bot can do\n" + \
+           "/register : To register\n" + \
+           "/help : To get a list of bot commands\n" + \
+           "/match : To match with another Eusoffian\n" + \
+           "/end : To end a chat\n" + \
+           "/report : To report a user\n"        
 
-startText = """Hi there and Welcome to the Eusoff Chat Bot.\n\n
-            You can use this bot to match and anonymously chat\n
-            with other Eusoffians; to make new connections and\n
-            have fun. At the end, you can rate the conversation.\n 
-            """ + helpText
+startText = "Hi there and Welcome to the Eusoff Chat Bot.\n\n" + \
+            "You can use this bot to match and anonymously chat\n" + \
+            "with other Eusoffians; to make new connections and\n" + \
+            "have fun. At the end, you can rate the conversation.\n" + \
+            helpText
 
 msg404 = "Aw, Snap! I'm broken and my devs are too tired to fix me :("
 
@@ -40,14 +38,20 @@ msg404 = "Aw, Snap! I'm broken and my devs are too tired to fix me :("
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
         t_data = json.loads(request.body)
+
+        # Handle rating feedback
         if "callback_query" in t_data:
             self.handleRating(t_data)
+        # Handle all user input
         elif "message" in t_data:
             t_message = t_data["message"]
             t_chat = t_message["chat"]
             t_message_id = t_message["message_id"]
             t_id = t_chat["id"]
             queryChatId = {"chat_id": t_id}
+            chat = chatb_collection.find_one(queryChatId)
+            
+            print(text + ' ' + str(t_id))
 
             try:
                 text = t_message["text"].strip()
@@ -55,10 +59,6 @@ class ChatBotView(View):
                 msg = "Unable to parse the text"
                 self.send_message(msg, t_id)
                 return JsonResponse({"ok": "POST request processed"})
-
-            print(text + ' ' + str(t_id))
-
-            chat = chatb_collection.find_one(queryChatId)
 
             # Send introductory message regardless of registered status
             if text == "/start":
