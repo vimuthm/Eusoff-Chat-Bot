@@ -42,11 +42,11 @@ class ChatBotView(View):
         t_id = t_chat["id"]
         print(t_message)
 
-        callbackData = t_data["data"]
-        command = callbackData.split('-')[0]
-        print(callbackData)
+        # callbackData = t_data["data"]
+        # command = callbackData.split('-')[0]
+
         print("hi")
-        print(command)
+        print(t_data)
         print("here")
 
         try:
@@ -76,6 +76,10 @@ class ChatBotView(View):
                 ]
             ]}
         self.send_message("test", t_id, reply_markup=keyboard)
+
+        print("foo")
+        print(t_data)
+        print("bar")
 
         if not chat:
             if text != "register":
