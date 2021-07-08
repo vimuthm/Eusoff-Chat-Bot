@@ -113,16 +113,15 @@ class ChatBotView(View):
                                 {"text": "5", "callback_data": 5}
                             ]
                         ]}
-
+                    chatb_collection.update_one(
+                        self.queryChatId(person2),
+                        {"$set": {"state": "untethered"}}
+                    )
                     chatb_collection.update_one(
                         self.queryChatId(person1),
                         {"$set": {"state": "untethered"}}
                     )
                     print("person2 is here")
-                    chatb_collection.update_one(
-                        self.queryChatId(person2),
-                        {"$set": {"state": "untethered"}}
-                    )
 
                     # self.send_message(
                     #     "Please rate the user you chatted with", person1, reply_markup=keyboard)
