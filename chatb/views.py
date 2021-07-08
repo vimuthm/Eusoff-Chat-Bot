@@ -47,6 +47,10 @@ class ChatBotView(View):
             p2_data = chatb_collection.find(
                 {"chat_id": p1})[0]
             p2 = p2_data["match_id"]
+            rating = int(t_callbackData)
+
+            newRating = (
+                p2_data["rating"] * p2_data["numOfConvo"] + rating)/(p2_data["numOfConvo"] + 1)
             print(chatb_collection.find(
                 {"chat_id": p1}))
             print(p2_data)
@@ -58,7 +62,10 @@ class ChatBotView(View):
                 self.queryChatId(p1), {"$unset": {"match_id": ""}})
 
             chatb_collection.update_one(
-                self.queryChatId(p2), {"$set": {"rating": t_callbackData}})
+                self.queryChatId(p2),
+                {"$set": {"rating": newRating},
+                 "$inc": {"numOfConvo": 1}
+                 })
 
         elif "message" in t_data:
             t_message = t_data["message"]
@@ -218,7 +225,9 @@ class ChatBotView(View):
                             self.queryChatId(t_id),
                             {"$set": {"state": "untethered",
                                       "name": name,
-                                      "room": room}}
+                                      "room": room,
+                                      "numOfConvo": 0,
+                                      "rating": 0}}
                         )
                         msg = "Successfully registered!"
                         self.send_message(msg, t_id)
@@ -235,7 +244,7 @@ class ChatBotView(View):
                     msg = "Unknown command"
                     self.send_message(msg, t_id)
 
-            return JsonResponse({"ok": "POST request processed"})
+        return JsonResponse({"ok": "POST request processed"})
 
     @ staticmethod
     def send_message(message, chat_id, reply_markup='', notif=True):
