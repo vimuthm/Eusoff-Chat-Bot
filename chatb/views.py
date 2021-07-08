@@ -7,6 +7,7 @@ from django.views import View
 
 from .models import chatb_collection
 from .tasks import match
+from .foo import aiChat
 
 TELEGRAM_URL = "https://api.telegram.org/bot"
 TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
@@ -98,6 +99,8 @@ class ChatBotView(View):
                 print("Going to add to queue")
                 match(repeat=1)
                 print("Added to queue")
+                msg = "I really really hope your either Vimuth or Jared 🤞"
+                self.send_message(msg, t_id)
             # Handle /register when already registered
             elif text == "/register":
                 msg = "You have already been registered, %s." % chat['name']
@@ -107,13 +110,17 @@ class ChatBotView(View):
                 self.send_message(helpText, t_id)
             # Handle /match by changing state to queued
             elif text == "/match":
-                chatb_collection.update_one(queryChatId, {"$set": {"state": "queued"}})                 
+                chatb_collection.update_one(queryChatId, {"$set": {"state": "queued"}})      
+            elif text == "/ai":
+                chatb_collection.update_one(queryChatId, {"$set": {"state": "ai"}})      
             # Free user input except when queued/matched        
             else:
                 # Handle register inputs
                 if chat['state'] == "register":
                     msg = self.handleRegister(chatb_collection, t_id, text)   
                 # Handle reported reason   
+                elif chat['state'] == "ai":
+                    msg = aiChat(text)
                 elif chat['state'] == "report":
                     msg = "Reporting user (WIP)"
                 else:
@@ -234,6 +241,13 @@ class ChatBotView(View):
                 {"$set": {"state": "untethered"}}
             )
             msg = "Stopped searching :("
+            self.send_message(msg, t_id)
+        elif chat['state'] == "ai":
+            chatb_collection.update_one(
+                {"chat_id": t_id},
+                {"$set": {"state": "untethered"}}
+            )
+            msg = "Herbert says bye :("
             self.send_message(msg, t_id)
         else:
             msg = "This command is only applicable when you're matched or in queue."
