@@ -74,7 +74,7 @@ def match():
         #     chatb_collection.update_one(queryChatId(
         #         t_id), {"$set": {"state": "untethered"}})
         #     break
-        
+    
     
     print("welp")
 
@@ -92,7 +92,11 @@ def train():
     trainer.train("chatterbot.corpus.english.conversations")
 
 def chatwAI(input):
-    return chatbot.get_response(input).text
+    try:
+        msg = chatbot.get_response(input).text
+    except Exception as e:
+        msg = "lol im dumb"
+    return msg
 
 def send_message(message, chat_id, reply_markup='', notif=True):
     data = {
