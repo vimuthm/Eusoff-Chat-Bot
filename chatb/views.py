@@ -42,9 +42,11 @@ class ChatBotView(View):
             t_callbackData = t_callbackQuery["data"]
 
             p1 = t_id
-            p2_data = chatb_collection.find(
+            p1_data = chatb_collection.find(
                 {"chat_id": p1})[0]
-            p2 = p2_data["match_id"]
+            p2 = p1_data["match_id"]
+            p2_data = chatb_collection.find(
+                {"chat_id": p2})[0]
 
             newRating = (
                 p2_data["rating"] * p2_data["numOfConvo"] + int(t_callbackData))/(p2_data["numOfConvo"] + 1)
