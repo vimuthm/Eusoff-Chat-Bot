@@ -15,11 +15,11 @@ waitMessage = "Looking for another Eusoffian."
 messageDict = {}
 chatbot = ChatBot(
         'Herbert',
-        # logic_adapters=[
-        #     'chatterbot.logic.UnitConversion',
-        #     'chatterbot.logic.MathematicalEvaluation',
-        #     'chatterbot.logic.TimeLogicAdapter'
-        # ]
+        logic_adapters=[
+            'chatterbot.logic.UnitConversion',
+            'chatterbot.logic.MathematicalEvaluation',
+            'chatterbot.logic.TimeLogicAdapter'
+        ]
     )
 
 @background(schedule=0)
@@ -84,9 +84,7 @@ def dots():
 
 @background(schedule=0)
 def train():
-    global chatbot
-    
-
+    global chatbot 
     trainer = ChatterBotCorpusTrainer(chatbot)
 
     trainer.train("chatterbot.corpus.english")
