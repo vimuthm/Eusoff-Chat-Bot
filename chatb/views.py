@@ -32,64 +32,33 @@ startText = """Hi there and Welcome to the Eusoff Chat Bot. You can use this bot
 
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
 
-
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
         t_data = json.loads(request.body)
+        
         if "callback_query" in t_data:
-            t_callbackQuery = t_data["callback_query"]
-            t_id = t_callbackQuery["from"]["id"]
-            t_callbackData = t_callbackQuery["data"]
-
-            p1 = t_id
-            p1_data = chatb_collection.find(
-                {"chat_id": p1})[0]
-            p2 = p1_data["match_id"]
-            p2_data = chatb_collection.find(
-                {"chat_id": p2})[0]
-
-            newRating = (
-                p2_data["rating"] * p2_data["numOfConvo"] + int(t_callbackData))/(p2_data["numOfConvo"] + 1)
-
-            self.send_message(
-                "Thanks for the rating. Press /match to have another conversation.", t_id)
-
-            chatb_collection.update_one(
-                self.queryChatId(p1), {"$unset": {"match_id": ""}})
-
-            chatb_collection.update_one(
-                self.queryChatId(p2),
-                {"$set": {"rating": newRating},
-                 "$inc": {"numOfConvo": 1}
-                 })
-
+            self.handleRating(t_data)
         elif "message" in t_data:
             t_message = t_data["message"]
             t_chat = t_message["chat"]
             t_message_id = t_message["message_id"]
             t_id = t_chat["id"]
-            print("message")
-            print(t_message)
 
             try:
-                text = t_message["text"].strip().lower()
+                text = t_message["text"].strip()
             except Exception as e:
-                try:
-                    msg = "Unable to parse the text"
-                    self.send_message(msg, t_id)
-                    return JsonResponse({"ok": "POST request processed"})
-                except Exception as e:
-                    return JsonResponse({"ok": "POST request processed"})
+                msg = "Unable to parse the text"
+                self.send_message(msg, t_id)
+                return JsonResponse({"ok": "POST request processed"})
 
             text = text.lstrip("/")
             print(text + str(t_id))
 
             chat = chatb_collection.find_one(self.queryChatId(t_id))
-            print(chat)
 
             if not chat:
                 if text != "register":
-                    print("not reg")
+                    print("not registered")
                     msg = "You don't seem to be registered yet! Use /register"
                     self.send_message(msg, t_id)
                 else:
@@ -100,11 +69,10 @@ class ChatBotView(View):
                     self.send_message(msg, t_id, reply_markup=reply_markup)
                     chat = {
                         "chat_id": t_id,
-                        "counter": 0,
                         "state": "register"
                     }
                     response = chatb_collection.insert_one(chat)
-                    # # we want chat obj to be the same as fetched from collection
+                    # we want chat obj to be the same as fetched from collection
                     # chat["_id"] = response.inserted_id
             elif chat['state'] == "matched":
                 if text == "end":
@@ -132,9 +100,9 @@ class ChatBotView(View):
                     )
 
                     self.send_message(
-                        "Your conversation has ended. Please your conversation.", person1, reply_markup=keyboard)
+                        "Your conversation has ended. Please rate your conversation.", person1, reply_markup=keyboard)
                     self.send_message(
-                        "Your conversation has ended. Please your conversation", person2, reply_markup=keyboard)
+                        "Your conversation has ended. Please rate your conversation.", person2, reply_markup=keyboard)
 
                 elif text == "report":
                     self.send_message("Report not done", t_id)
@@ -195,17 +163,6 @@ class ChatBotView(View):
                     successMessage = "You have been matched! Have fun!"
                     self.send_message(successMessage, person1)
                     self.send_message(successMessage, person2)
-            elif text == "+":
-                chat["counter"] += 1
-                chatb_collection.save(chat)
-                msg = f"Number of '+' messages that were parsed: {chat['counter']}"
-                self.send_message(msg, t_id)
-            elif text == "restart":
-                blank_data = {"counter": 0}
-                chat.update(blank_data)
-                chatb_collection.save(chat)
-                msg = "The Tutorial bot was restarted"
-                self.send_message(msg, t_id)
             else:
                 if chat['state'] == "register":
                     try:
@@ -218,7 +175,7 @@ class ChatBotView(View):
                             {"$set": {"state": "untethered",
                                       "name": name,
                                       "room": room,
-                                      "numOfConvo": 0,
+                                      "count": 0,
                                       "rating": 0}}
                         )
                         msg = "Successfully registered!"
@@ -235,10 +192,12 @@ class ChatBotView(View):
                 else:
                     msg = "Unknown command"
                     self.send_message(msg, t_id)
+        else:
+            print("Failed: Neither callback nor message")
 
         return JsonResponse({"ok": "POST request processed"})
 
-    @ staticmethod
+    @staticmethod
     def send_message(message, chat_id, reply_markup='', notif=True):
         data = {
             "chat_id": chat_id,
@@ -252,7 +211,7 @@ class ChatBotView(View):
         )
         return response.json()
 
-    @ staticmethod
+    @staticmethod
     def update_message(message, chat_id, message_id, reply_markup=''):
         data = {
             "chat_id": chat_id,
@@ -265,14 +224,41 @@ class ChatBotView(View):
             f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/editMessageText", data=data
         )
 
-    @ staticmethod
+    @staticmethod
     def queryChatId(chat_id):
         return {"chat_id": chat_id}
 
-    @ staticmethod
+    @staticmethod
     def checkRoomValidity(room):
         if not (room[0].lower() >= 'a' and
                 room[0].lower() <= 'e' and
                 int(room[1]) >= 1 and
                 int(room[1]) <= 4):
             raise Exception('Invalid room!')
+
+    def handleRating(self, t_data):
+        t_callbackQuery = t_data["callback_query"]
+        t_id = t_callbackQuery["from"]["id"]
+        t_callbackData = t_callbackQuery["data"]
+
+        p1 = t_id
+        p1_data = chatb_collection.find_one(
+            {"chat_id": p1})[0]
+        p2 = p1_data["match_id"]
+        p2_data = chatb_collection.find_one(
+            {"chat_id": p2})[0]
+
+        newRating = (p2_data["rating"] * p2_data["count"] + int(t_callbackData)) / \
+                    (p2_data["count"] + 1)
+
+        self.send_message(
+            "Thanks for the rating. Press /match to have another conversation.", t_id)
+
+        chatb_collection.update_one(
+            self.queryChatId(p1), {"$unset": {"match_id": ""}})
+
+        chatb_collection.update_one(
+            self.queryChatId(p2),
+            {"$set": {"rating": newRating},
+                "$inc": {"count": 1}
+                })
