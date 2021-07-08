@@ -41,12 +41,12 @@ class ChatBotView(View):
             t_id = t_callbackQuery["from"]["id"]
             t_callbackData = t_callbackQuery["data"]
 
-            person1 = t_id
-            person2 = chatb_collection.find(
-                {"chat_id": person1})[0]["match_id"]
+            p1 = t_id
+            p2 = chatb_collection.find(
+                {"chat_id": p1})[0]["match_id"]
 
             chatb_collection.update_one(
-                self.queryChatId(person2),
+                self.queryChatId(p2),
                 {"$set": {"rating": t_callbackData, "match_id": ""}}
             )
 
