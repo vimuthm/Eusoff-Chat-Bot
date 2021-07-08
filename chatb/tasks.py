@@ -13,7 +13,14 @@ TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
 count = 0
 waitMessage = "Looking for another Eusoffian."
 messageDict = {}
-chatbot = ''
+chatbot = ChatBot(
+        'Herbert',
+        # logic_adapters=[
+        #     'chatterbot.logic.UnitConversion',
+        #     'chatterbot.logic.MathematicalEvaluation',
+        #     'chatterbot.logic.TimeLogicAdapter'
+        # ]
+    )
 
 @background(schedule=0)
 def match():
@@ -78,14 +85,7 @@ def dots():
 @background(schedule=0)
 def train():
     global chatbot
-    chatbot = ChatBot(
-        'Herbert',
-        # logic_adapters=[
-        #     'chatterbot.logic.UnitConversion',
-        #     'chatterbot.logic.MathematicalEvaluation',
-        #     'chatterbot.logic.TimeLogicAdapter'
-        # ]
-    )
+    
 
     trainer = ChatterBotCorpusTrainer(chatbot)
 
