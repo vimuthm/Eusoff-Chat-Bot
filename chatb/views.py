@@ -53,11 +53,6 @@ class ChatBotView(View):
             chat = chatb_collection.find_one(queryChatId)
 
             try:
-                chatb_collection.update_one(queryChatId, {
-                    "$set": {
-                                "text": t_message["text"],
-                            }
-                })
                 text = t_message["text"].strip()
                 print(text + ' ' + str(t_id))
             except Exception as e:
