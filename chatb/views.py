@@ -6,8 +6,9 @@ from django.http import JsonResponse
 from django.views import View
 
 from .models import chatb_collection
-from .tasks import match
-from .foo import aiChat
+from .tasks import match, train, chatwAI
+# from .foo import aiChat
+
 
 TELEGRAM_URL = "https://api.telegram.org/bot"
 TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
@@ -98,6 +99,7 @@ class ChatBotView(View):
             elif text == "/dontrunthisoryouwillbefiredadmin":                
                 print("Going to add to queue")
                 match(repeat=1)
+                train()
                 print("Added to queue")
                 msg = "I really really hope your either Vimuth or Jared 🤞"
                 self.send_message(msg, t_id)
@@ -121,7 +123,7 @@ class ChatBotView(View):
                     msg = self.handleRegister(chatb_collection, t_id, text)   
                 # Handle reported reason   
                 elif chat['state'] == "ai":
-                    msg = aiChat(text)
+                    msg = chatwAI(text)
                 elif chat['state'] == "report":
                     msg = "Reporting user (WIP)"
                 else:

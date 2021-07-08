@@ -1,4 +1,6 @@
 from background_task import background
+from chatterbot import ChatBot
+from chatterbot.trainers import ChatterBotCorpusTrainer
 
 from .models import chatb_collection
 
@@ -11,6 +13,7 @@ TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
 count = 0
 waitMessage = "Looking for another Eusoffian."
 messageDict = {}
+chatbot = ''
 
 @background(schedule=0)
 def match():
@@ -71,6 +74,27 @@ def match():
 @background(schedule=0)
 def dots():
     print("TODO")
+
+@background(schedule=0)
+def train():
+    global chatbot
+    chatbot = ChatBot(
+        'Herbert',
+        # logic_adapters=[
+        #     'chatterbot.logic.UnitConversion',
+        #     'chatterbot.logic.MathematicalEvaluation',
+        #     'chatterbot.logic.TimeLogicAdapter'
+        # ]
+    )
+
+    trainer = ChatterBotCorpusTrainer(chatbot)
+
+    trainer.train("chatterbot.corpus.english")
+    trainer.train("chatterbot.corpus.english.greetings")
+    trainer.train("chatterbot.corpus.english.conversations")
+
+def chatwAI(input):
+    return chatbot.get_response(input) 
 
 def send_message(message, chat_id, reply_markup='', notif=True):
     data = {
