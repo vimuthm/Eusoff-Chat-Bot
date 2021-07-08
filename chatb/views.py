@@ -28,15 +28,15 @@ helpText = """
 
 startText = """Hi there and Welcome to the Eusoff Chat Bot. You can use this bot
             to match and anonymously chat with other Eusoffians. At the end, you
-            can rate the conversation as well.
+            can rate the conversation as well. 
             """ + helpText
 
+msg404 = "Aw, Snap! I'm broken and my devs are too tired to fix me :("
 
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
 
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
-        print(request)
         t_data = json.loads(request.body)
         if "callback_query" in t_data:
             self.handleRating(t_data)
@@ -45,6 +45,7 @@ class ChatBotView(View):
             t_chat = t_message["chat"]
             t_message_id = t_message["message_id"]
             t_id = t_chat["id"]
+            queryChatId = {"chat_id": t_id}
 
             try:
                 text = t_message["text"].strip()
@@ -53,17 +54,19 @@ class ChatBotView(View):
                 self.send_message(msg, t_id)
                 return JsonResponse({"ok": "POST request processed"})
 
-            print(text + str(t_id))
+            print(text + ' ' + str(t_id))
 
-            chat = chatb_collection.find_one(self.queryChatId(t_id))
+            chat = chatb_collection.find_one(queryChatId)
 
+            # Send introductory message regardless of registered status
+            if text == "/start":
+                self.send_message(startText, t_id)
+            # handle users not registered yet
             if not chat:
                 if text != "/register":
-                    print("not registered")
                     msg = "You don't seem to be registered yet! Use /register"
                     self.send_message(msg, t_id)
                 else:
-                    print("registering")
                     msg = "Please enter your name and room. Ex: John A101"
                     reply_markup = {"force_reply": True,
                                     "input_field_placeholder": "John A101"}
@@ -73,65 +76,42 @@ class ChatBotView(View):
                         "state": "register"
                     }
                     chatb_collection.insert_one(chat)
+            # Handle /end when queued and matched
+            elif text == "/end":
+                self.handleEnd(chatb_collection, chat, t_id)
+            # Handle free user input (anon chat) and /report when matched
             elif chat['state'] == "matched":
-                if text == "/end":
-                    person1 = t_id
-                    person2 = chatb_collection.find(
-                        {"chat_id": person1})[0]["match_id"]
-                    keyboard = {
-                        "inline_keyboard": [
-                            [
-                                {"text": "1", "callback_data": 1},
-                                {"text": "2", "callback_data": 2},
-                                {"text": "3", "callback_data": 3},
-                                {"text": "4", "callback_data": 4},
-                                {"text": "5", "callback_data": 5}
-                            ]
-                        ]}
-
-                    chatb_collection.update_one(
-                        self.queryChatId(person1),
-                        {"$set": {"state": "untethered"}}
-                    )
-                    chatb_collection.update_one(
-                        self.queryChatId(person2),
-                        {"$set": {"state": "untethered"}}
-                    )
-
-                    msg = "Your conversation has ended. Please rate your conversation."
-                    self.send_message(msg, person1, reply_markup=keyboard)
-                    self.send_message(msg, person2, reply_markup=keyboard)
-
-                elif text == "/report":
-                    self.send_message("Report not done", t_id)
+                if text == "/report":
+                    self.send_message("Report not done", t_id)                    
                 else:
-                    self.send_message("Anon chat not done", t_id)
+                    self.send_message(text, chat['match_id'])
+            # Handle free user input other than /end when queued
+            elif chat['state'] == "queued":
+                msg = "Please wait, searching for a match! Press /end to stop searching"
+                self.send_message(msg, t_id)
             elif text == "/dontrunthisoryouwillbefired":                
-                self.send_message("I told my team yall cant be trusted 🙄", t_id)
+                self.send_message("Ahh tried to pull a sneaky one huh... knew yall cant be trusted 😩✋", t_id)
+            # Start the matching background process
             elif text == "/dontrunthisoryouwillbefiredadmin":                
                 print("Going to add to queue")
                 match(repeat=1)
                 print("Added to queue")
-            elif text == "/start":
-                self.send_message(startText, t_id)
+            # Handle /register when already registered
             elif text == "/register":
                 msg = "You have already been registered, %s." % chat['name']
                 self.send_message(msg, t_id)
+            # Send help text
             elif text == "/help":
                 self.send_message(helpText, t_id)
+            # Handle /match by changing state to queued
             elif text == "/match":
-                chatb_collection.update_one(
-                    self.queryChatId(t_id), 
-                    {
-                        "$set": {"state": "queued"}
-                    }
-                )             
+                chatb_collection.update_one(queryChatId, {"$set": {"state": "queued"}})                 
+            # Free user input except when queued/matched        
             else:
-                # Free user input except matched messages
+                # Handle register inputs
                 if chat['state'] == "register":
-                    msg = self.handleRegister(chatb_collection, t_id, text)                    
-                elif chat['state'] == "queued":
-                    msg = "Please wait, searching for a match!"
+                    msg = self.handleRegister(chatb_collection, t_id, text)   
+                # Handle reported reason   
                 elif chat['state'] == "report":
                     msg = "Reporting user (WIP)"
                 else:
@@ -139,8 +119,6 @@ class ChatBotView(View):
                 self.send_message(msg, t_id)
         else:
             print("Failed: Neither callback nor message")
-            msg = "Aw, Snap! I'm broken and my devs are too tired to fix me :("
-            self.send_message(msg, t_id)
 
         return JsonResponse({"ok": "POST request processed"})
 
@@ -159,23 +137,6 @@ class ChatBotView(View):
         return response.json()
 
     @staticmethod
-    def update_message(message, chat_id, message_id, reply_markup=''):
-        data = {
-            "chat_id": chat_id,
-            "message_id": message_id,
-            "text": message,
-            "parse_mode": "Markdown",
-            "reply_markup": reply_markup
-        }
-        response = requests.post(
-            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/editMessageText", data=data
-        )
-
-    @staticmethod
-    def queryChatId(chat_id):
-        return {"chat_id": chat_id}
-
-    @staticmethod
     def checkRoomValidity(room):
         if not (room[0].lower() >= 'a' and
                 room[0].lower() <= 'e' and
@@ -188,28 +149,26 @@ class ChatBotView(View):
         t_id = t_callbackQuery["from"]["id"]
         t_callbackData = t_callbackQuery["data"]
 
-        p1 = t_id
-        p1_data = chatb_collection.find_one(
-            {"chat_id": p1})
-        p2 = p1_data["match_id"]
-        p2_data = chatb_collection.find_one(
-            {"chat_id": p2})
+        person1 = t_id
+        p1_data = chatb_collection.find_one({"chat_id": person1})
+        person2 = p1_data["match_id"]
+        p2_data = chatb_collection.find_one({"chat_id": person2})
 
         newRating = (p2_data["rating"] * p2_data["count"] + int(t_callbackData)) / \
                     (p2_data["count"] + 1)
 
         msg = "Thanks for the rating. Press /match to have another conversation."
-        self.send_message(msg, t_id)
+        self.send_message(msg, person1)
 
         chatb_collection.update_one(
-            self.queryChatId(p1), 
+            {"chat_id": person1}, 
             {
                 "$unset": {"match_id": ""}
             }
         )
 
         chatb_collection.update_one(
-            self.queryChatId(p2),
+            {"chat_id": person2},
             {
                 "$set": {"rating": newRating},
                 "$inc": {"count": 1}
@@ -219,11 +178,9 @@ class ChatBotView(View):
     def handleRegister(self, chatb_collection, t_id, text):
         try:
             name, room = text.split(' ')
-            print(room)
             self.checkRoomValidity(room)
-            print("passed")
             chatb_collection.update_one(
-                self.queryChatId(t_id),
+                {"chat_id": t_id},
                 {
                     "$set": {
                                 "state": "untethered",
@@ -238,3 +195,41 @@ class ChatBotView(View):
         except Exception as e:
             msg = "Please follow the format, John A101"
         return msg
+
+    def handleEnd(self, chatbcollection, chat, t_id):
+        if chat['state'] == "matched":
+            person1 = t_id
+            person2 = chatb_collection.find(
+                {"chat_id": person1})[0]["match_id"]
+            keyboard = {
+                "inline_keyboard": [
+                    [
+                        {"text": "1", "callback_data": 1},
+                        {"text": "2", "callback_data": 2},
+                        {"text": "3", "callback_data": 3},
+                        {"text": "4", "callback_data": 4},
+                        {"text": "5", "callback_data": 5}
+                    ]
+                ]}
+
+            chatb_collection.update_one(
+                {"chat_id": person1},
+                {"$set": {"state": "untethered"}}
+            )
+            chatb_collection.update_one(
+                {"chat_id": person2},
+                {"$set": {"state": "untethered"}}
+            )
+
+            msg1 = "Your conversation has ended. Please rate your conversation."
+            msg2 = "Your partner has ended the conversation. Please rate your conversation."
+            self.send_message(msg1, person1, reply_markup=keyboard)
+            self.send_message(msg2, person2, reply_markup=keyboard)
+
+        elif chat['state'] == "queued":
+            chatb_collection.update_one(
+                {"chat_id": t_id},
+                {"$set": {"state": "untethered"}}
+            )
+            msg = "Stopped searching :("
+            self.send_message(msg2, t_id)
