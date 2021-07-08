@@ -17,8 +17,7 @@ chatbot = ChatBot(
         'Herbert',
         logic_adapters=[
             'chatterbot.logic.UnitConversion',
-            'chatterbot.logic.MathematicalEvaluation',
-            'chatterbot.logic.TimeLogicAdapter'
+            'chatterbot.logic.MathematicalEvaluation'
         ]
     )
 

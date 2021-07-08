@@ -99,6 +99,11 @@ class ChatBotView(View):
             elif text == "/dontrunthisoryouwillbefiredadmin":                
                 print("Going to add to queue")
                 match(repeat=1)
+                print("Added to queue")
+                msg = "I really really hope your either Vimuth or Jared 🤞"
+                self.send_message(msg, t_id)
+            elif text == "/dontrunthisoryouwillbefiredtrain": 
+                print("Going to add to queue")
                 train()
                 print("Added to queue")
                 msg = "I really really hope your either Vimuth or Jared 🤞"
