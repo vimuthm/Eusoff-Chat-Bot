@@ -16,7 +16,7 @@ messageDict = {}
 chatbot = ChatBot(
         'Herbert',
         logic_adapters=[
-            'chatterbot.logic.BestMatch'
+            'chatterbot.logic.BestMatch',
             'chatterbot.logic.MathematicalEvaluation'
         ]
     )
