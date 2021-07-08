@@ -62,7 +62,7 @@ class ChatBotView(View):
             if text == "/start":
                 self.send_message(startText, t_id)
             # handle users not registered yet
-            if not chat:
+            elif not chat:
                 if text != "/register":
                     msg = "You don't seem to be registered yet! Use /register"
                     self.send_message(msg, t_id)
@@ -90,7 +90,7 @@ class ChatBotView(View):
                 msg = "Please wait, searching for a match! Press /end to stop searching"
                 self.send_message(msg, t_id)
             elif text == "/dontrunthisoryouwillbefired":                
-                self.send_message("Ahh tried to pull a sneaky one huh... knew yall cant be trusted 😩✋", t_id)
+                self.send_message("Ahh tried to pull a sneaky one huh... \nknew yall cant be trusted 😩✋", t_id)
             # Start the matching background process
             elif text == "/dontrunthisoryouwillbefiredadmin":                
                 print("Going to add to queue")
@@ -232,4 +232,7 @@ class ChatBotView(View):
                 {"$set": {"state": "untethered"}}
             )
             msg = "Stopped searching :("
-            self.send_message(msg2, t_id)
+            self.send_message(msg, t_id)
+        else:
+            msg = "This command is only applicable when you're matched or in queue."
+            self.send_message(msg, t_id)
