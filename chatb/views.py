@@ -102,6 +102,7 @@ class ChatBotView(View):
                     person1 = t_id
                     person2 = chatb_collection.find(
                         {"chat_id": person1})[0]["match_id"]
+                    print(person2)
                     keyboard = {
                         "inline_keyboard": [
                             [
@@ -117,6 +118,7 @@ class ChatBotView(View):
                         self.queryChatId(person1),
                         {"$set": {"state": "untethered"}}
                     )
+                    print("person2 is here")
                     chatb_collection.update_one(
                         self.queryChatId(person2),
                         {"$set": {"state": "untethered"}}
