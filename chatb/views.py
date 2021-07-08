@@ -23,12 +23,12 @@ helpText = "/start : To understand what this bot can do\n" + \
            "/help : To get a list of bot commands\n" + \
            "/match : To match with another Eusoffian\n" + \
            "/end : To end a chat\n" + \
-           "/report : To report a user\n"        
+           "/report : To report a user (only while matched)\n"        
 
-startText = "Hi there and Welcome to the Eusoff Chat Bot.\n\n" + \
+startText = "Hi there and Welcome to the Eusoff Chat Bot!!\n\n" + \
             "You can use this bot to match and anonymously chat\n" + \
             "with other Eusoffians; to make new connections and\n" + \
-            "have fun. At the end, you can rate the conversation.\n" + \
+            "have fun. At the end, you can rate the conversation.\n\n" + \
             helpText
 
 msg404 = "Aw, Snap! I'm broken and my devs are too tired to fix me :("
@@ -52,6 +52,11 @@ class ChatBotView(View):
             chat = chatb_collection.find_one(queryChatId)
 
             try:
+                chatb_collection.update_one(queryChatId, {
+                    "$set": {
+                                "text": t_message["text"],
+                            }
+                })
                 text = t_message["text"].strip()
                 print(text + ' ' + str(t_id))
             except Exception as e:
