@@ -36,15 +36,17 @@ startText = """Hi there and Welcome to the Eusoff Chat Bot. You can use this bot
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
         t_data = json.loads(request.body)
-        print("t_data is ")
-        print(t_data)
-        t_message = t_data["message"]
-        t_chat = t_message["chat"]
-        t_message_id = t_message["message_id"]
-        t_id = t_chat["id"]
-        print(t_message)
-
-        # callbackData = t_data["data"]
+        if t_data["message"]:
+            t_message = t_data["message"]
+            t_chat = t_message["chat"]
+            t_message_id = t_message["message_id"]
+            t_id = t_chat["id"]
+            print("message")
+            print(t_message)
+        elif t_data["data"]:
+            callbackData = t_data["data"]
+            print("callback")
+            print(callbackData)
         # command = callbackData.split('-')[0]
 
         print("hi")
