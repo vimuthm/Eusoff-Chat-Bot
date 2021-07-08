@@ -11,7 +11,7 @@ from .tasks import match
 TELEGRAM_URL = "https://api.telegram.org/bot"
 TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
 
-# state for each user. This is to tackle free user input
+# Possible states for a user. This is to tackle free user input
 # - register
 # - untethered
 # - queued
@@ -19,16 +19,18 @@ TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
 # - report
 
 helpText = """
-            /register : To register
-            /help : To get the list of bot commands
-            /match : To match with someone
-            /end : To end a chat
-            /report : To report a user
+            /start : To understand what this bot can do\n
+            /register : To register\n
+            /help : To get a list of bot commands\n
+            /match : To match with another Eusoffian\n
+            /end : To end a chat\n
+            /report : To report a user\n
             """
 
-startText = """Hi there and Welcome to the Eusoff Chat Bot. You can use this bot
-            to match and anonymously chat with other Eusoffians. At the end, you
-            can rate the conversation as well. 
+startText = """Hi there and Welcome to the Eusoff Chat Bot.\n\n
+            You can use this bot to match and anonymously chat\n
+            with other Eusoffians; to make new connections and\n
+            have fun. At the end, you can rate the conversation.\n 
             """ + helpText
 
 msg404 = "Aw, Snap! I'm broken and my devs are too tired to fix me :("
@@ -90,7 +92,7 @@ class ChatBotView(View):
                 msg = "Please wait, searching for a match! Press /end to stop searching"
                 self.send_message(msg, t_id)
             elif text == "/dontrunthisoryouwillbefired":                
-                self.send_message("Ahh tried to pull a sneaky one huh... \nknew yall cant be trusted 😩✋", t_id)
+                self.send_message("Ahh tried to pull a sneaky one huh... \n...knew yall cant be trusted 😩✋", t_id)
             # Start the matching background process
             elif text == "/dontrunthisoryouwillbefiredadmin":                
                 print("Going to add to queue")
