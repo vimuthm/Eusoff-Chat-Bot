@@ -50,16 +50,15 @@ class ChatBotView(View):
             t_id = t_chat["id"]
             queryChatId = {"chat_id": t_id}
             chat = chatb_collection.find_one(queryChatId)
-            
-            print(text + ' ' + str(t_id))
 
             try:
                 text = t_message["text"].strip()
+                print(text + ' ' + str(t_id))
             except Exception as e:
                 msg = "Unable to parse the text"
                 self.send_message(msg, t_id)
                 return JsonResponse({"ok": "POST request processed"})
-
+            
             # Send introductory message regardless of registered status
             if text == "/start":
                 self.send_message(startText, t_id)
