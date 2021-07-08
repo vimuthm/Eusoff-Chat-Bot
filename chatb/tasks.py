@@ -16,7 +16,7 @@ messageDict = {}
 chatbot = ChatBot(
         'Herbert',
         logic_adapters=[
-            'chatterbot.logic.UnitConversion',
+            'chatterbot.logic.BestMatch'
             'chatterbot.logic.MathematicalEvaluation'
         ]
     )
@@ -94,7 +94,8 @@ def chatwAI(input):
     try:
         msg = chatbot.get_response(input).text
     except Exception as e:
-        msg = "lol im dumb"
+        print(e)
+        msg = "F I'm dumb"
     return msg
 
 def send_message(message, chat_id, reply_markup='', notif=True):
