@@ -44,13 +44,10 @@ class ChatBotView(View):
             person1 = t_id
             person2 = chatb_collection.find(
                 {"chat_id": person1})[0]["match_id"]
+
             chatb_collection.update_one(
-                self.queryChatId(person1),
-                {"$set": {"rating": t_callbackData}}
-            )
-            chatb_collection.update_one(
-                self.queryChatId(person1),
-                {"$set": {"rating": t_callbackData}}
+                self.queryChatId(person2),
+                {"$set": {"rating": t_callbackData, "match_id": ""}}
             )
 
         elif "message" in t_data:
@@ -115,18 +112,20 @@ class ChatBotView(View):
                                 {"text": "5", "callback_data": 5}
                             ]
                         ]}
+
+                    chatb_collection.update_one(
+                        self.queryChatId(person1),
+                        {"$set": {"state": "untethered"}}
+                    )
+                    chatb_collection.update_one(
+                        self.queryChatId(person2),
+                        {"$set": {"state": "untethered"}}
+                    )
+
                     self.send_message(
                         "Please rate the user you chatted with", person1, reply_markup=keyboard)
                     self.send_message(
                         "Please rate the user you chatted with", person2, reply_markup=keyboard)
-                    chatb_collection.update_one(
-                        self.queryChatId(person1),
-                        {"$set": {"match_id": "", "state": "untethered"}}
-                    )
-                    chatb_collection.update_one(
-                        self.queryChatId(person2),
-                        {"$set": {"match_id": "", "state": "untethered"}}
-                    )
 
                     self.send_message("End not done", t_id)
                 elif text == "report":
