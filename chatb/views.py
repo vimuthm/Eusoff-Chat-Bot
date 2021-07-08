@@ -120,7 +120,12 @@ class ChatBotView(View):
             elif text == "/help":
                 self.send_message(helpText, t_id)
             elif text == "/match":
-                self.handleMatching(chatb_collection, t_id)                
+                chatb_collection.update_one(
+                    self.queryChatId(t_id), 
+                    {
+                        "$set": {"state": "queued"}
+                    }
+                )             
             else:
                 # Free user input except matched messages
                 if chat['state'] == "register":
@@ -233,54 +238,3 @@ class ChatBotView(View):
         except Exception as e:
             msg = "Please follow the format, John A101"
         return msg
-
-    def handleMatching(self, chatb_collection, t_id):
-        chatb_collection.update_one(
-            self.queryChatId(t_id), 
-            {
-                "$set": {"state": "queued"}
-            }
-        )
-        inQueue = chatb_collection.count_documents({"state": "queued"})
-        waitMessage = "Looking for another Eusoffian."
-        sentMessage = self.send_message(waitMessage, t_id, '', False)
-        count = 0
-        while inQueue == 1:
-            waitMessageX = waitMessage + (count % 3) * "."
-            self.update_message(waitMessageX, t_id,
-                                sentMessage['result']['message_id'])
-            inQueue = chatb_collection.count_documents(
-                {"state": "queued"})
-            count += 1
-            if count > 20:
-                terminateMessage = "Sorry, there are no Eusoffians available at the moment."
-                self.update_message(
-                    terminateMessage, t_id, sentMessage['result']['message_id'])
-                chatb_collection.update_one(self.queryChatId(
-                    t_id), {"$set": {"state": "untethered"}})
-                break
-        if inQueue > 1:
-            personsInQueue = chatb_collection.find({"state": "queued"})
-
-            person1 = personsInQueue[0]["chat_id"]
-            person2 = personsInQueue[1]["chat_id"]
-            chatb_collection.update_one(
-                self.queryChatId(person1),
-                {"$set": {"match_id": person2}}
-            )
-            chatb_collection.update_one(
-                self.queryChatId(person2),
-                {"$set": {"match_id": person1}}
-            )
-            chatb_collection.update_one(
-                self.queryChatId(person1),
-                {"$set": {"state": "matched"}}
-            )
-            chatb_collection.update_one(
-                self.queryChatId(person2),
-                {"$set": {"state": "matched"}}
-            )
-
-            successMessage = "You have been matched! Have fun!"
-            self.send_message(successMessage, person1)
-            self.send_message(successMessage, person2)
