@@ -1,6 +1,12 @@
 from background_task import background
 
-@background(schedule=2)
-def notify_user():
-    while True:
-        print("welp")
+from .models import chatb_collection
+
+@background(schedule=0)
+def match():
+    inQueue = chatb_collection.count_documents({"state": "queued"})
+    print("welp")
+
+@background(schedule=0)
+def dots():
+    print("TODO")
