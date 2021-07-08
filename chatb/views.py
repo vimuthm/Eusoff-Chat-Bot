@@ -112,7 +112,8 @@ class ChatBotView(View):
             elif text == "/match":
                 chatb_collection.update_one(queryChatId, {"$set": {"state": "queued"}})      
             elif text == "/ai":
-                chatb_collection.update_one(queryChatId, {"$set": {"state": "ai"}})      
+                chatb_collection.update_one(queryChatId, {"$set": {"state": "ai"}})  
+                self.send_message("Hi, I'm Herbert!!", t_id)    
             # Free user input except when queued/matched        
             else:
                 # Handle register inputs
