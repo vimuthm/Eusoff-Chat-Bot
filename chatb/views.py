@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.views import View
 
 from .models import chatb_collection
+from .tasks import notify_user
 
 TELEGRAM_URL = "https://api.telegram.org/bot"
 TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
@@ -36,7 +37,9 @@ startText = """Hi there and Welcome to the Eusoff Chat Bot. You can use this bot
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
         t_data = json.loads(request.body)
-        
+        print("Before adding task to queue")
+        notify_user()
+        print("added to queue")
         if "callback_query" in t_data:
             self.handleRating(t_data)
         elif "message" in t_data:
@@ -228,8 +231,12 @@ class ChatBotView(View):
         return msg
 
     def handleMatching(self, chatb_collection, t_id):
-        chatb_collection.update_one(self.queryChatId(
-            t_id), {"$set": {"state": "queued"}})
+        chatb_collection.update_one(
+            self.queryChatId(t_id), 
+            {
+                "$set": {"state": "queued"}
+            }
+        )
         inQueue = chatb_collection.count_documents({"state": "queued"})
         waitMessage = "Looking for another Eusoffian."
         sentMessage = self.send_message(waitMessage, t_id, '', False)

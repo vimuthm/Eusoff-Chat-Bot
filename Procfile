@@ -1,1 +1,1 @@
-web: gunicorn chatb.wsgi
+web: bin/web

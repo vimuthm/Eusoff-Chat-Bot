@@ -2,6 +2,7 @@ asgiref==3.4.1
 certifi==2021.5.30
 chardet==4.0.0
 Django==3.2.5
+django-background-tasks==1.2.5
 dnspython==2.1.0
 gunicorn==20.1.0
 idna==2.10
