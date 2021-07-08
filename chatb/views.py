@@ -46,10 +46,10 @@ class ChatBotView(View):
                 {"chat_id": p1})[0]["match_id"]
 
             chatb_collection.update_one(
-                self.queryChatId(p2),
-                {"$set": {"rating": t_callbackData},
-                 "$unset": {"match_id": ""}}
-            )
+                self.queryChatId(p1), {"$unset": {"match_id": ""}})
+
+            chatb_collection.update_one(
+                self.queryChatId(p2), {"$set": {"rating": t_callbackData}})
 
         elif "message" in t_data:
             t_message = t_data["message"]
