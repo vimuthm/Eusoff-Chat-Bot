@@ -40,12 +40,19 @@ class ChatBotView(View):
             t_callbackQuery = t_data["callback_query"]
             t_id = t_callbackQuery["from"]["id"]
             t_callbackData = t_callbackQuery["data"]
+            print(t_callbackData)
+            print(type(t_callbackData))
 
             p1 = t_id
-            p2 = chatb_collection.find(
-                {"chat_id": p1})[0]["match_id"]
+            p2_data = chatb_collection.find(
+                {"chat_id": p1})[0]
+            p2 = p2_data["match_id"]
+            print(chatb_collection.find(
+                {"chat_id": p1}))
+            print(p2_data)
 
-            self.send_message("Thanks for the rating. Press /start to have another conversation.", t_id)
+            self.send_message(
+                "Thanks for the rating. Press /match to have another conversation.", t_id)
 
             chatb_collection.update_one(
                 self.queryChatId(p1), {"$unset": {"match_id": ""}})
@@ -105,7 +112,6 @@ class ChatBotView(View):
                     person1 = t_id
                     person2 = chatb_collection.find(
                         {"chat_id": person1})[0]["match_id"]
-                    print(person2)
                     keyboard = {
                         "inline_keyboard": [
                             [
@@ -125,12 +131,11 @@ class ChatBotView(View):
                         self.queryChatId(person2),
                         {"$set": {"state": "untethered"}}
                     )
-                    print("person2 is here")
 
                     self.send_message(
-                        "Your conversation has ended. Please rate the user you chatted with", person1, reply_markup=keyboard)
+                        "Your conversation has ended. Please your conversation.", person1, reply_markup=keyboard)
                     self.send_message(
-                        "Your conversation has ended. Please rate the user you chatted with", person2, reply_markup=keyboard)
+                        "Your conversation has ended. Please your conversation", person2, reply_markup=keyboard)
 
                 elif text == "report":
                     self.send_message("Report not done", t_id)
