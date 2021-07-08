@@ -25,9 +25,10 @@ helpText = "/start : To understand what this bot can do\n" + \
            "/end : To end a chat\n" + \
            "/report : To report a user (only while matched)\n"        
 
-startText = "Hi there and Welcome to the Eusoff Chat Bot!!\n\n" + \
-            "You can use this bot to match and anonymously chat\n" + \
-            "with other Eusoffians; to make new connections and\n" + \
+startText = "Hi there and\n" + \
+            "           Welcome to the Eusoff Chat Bot!!!\n\n" + \
+            "You can use this bot to match and anonymously chat" + \
+            "with other Eusoffians; to make new connections and" + \
             "have fun. At the end, you can rate the conversation.\n\n" + \
             helpText
 
