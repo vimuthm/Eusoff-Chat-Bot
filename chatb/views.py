@@ -123,9 +123,10 @@ class ChatBotView(View):
                     self.send_message("Report not done", t_id)
                 else:
                     if text is not None:
-                        self.send_message(text, chat['match_id'])
+                        self.send_message(
+                            text, chat['match_id'], reply=replyId)
                         print(self.send_message(
-                            text, chat['match_id']))
+                            text, chat['match_id'], reply=replyId))
                         print("sent")
                     elif "sticker" in t_message:
                         self.send_sticker(
@@ -134,6 +135,8 @@ class ChatBotView(View):
                         self.send_document(
                             t_message["document"]["file_id"], chat['match_id'], caption)
                     elif "photo" in t_message:
+                        print(t_message["photo"][0])
+                        print(t_message["photo"][0]["file_id"])
                         self.send_photo(
                             t_message["photo"][0]["file_id"], chat['match_id'], caption)
                     elif "audio" in t_message:
@@ -199,13 +202,14 @@ class ChatBotView(View):
         return JsonResponse({"ok": "POST request processed"})
 
     @staticmethod
-    def send_message(message, chat_id, reply_markup={}, notif=True):
+    def send_message(message, chat_id, reply_markup={}, notif=True, reply=None):
         data = {
             "chat_id": chat_id,
             "text": message,
             "parse_mode": "Markdown",
             "reply_markup": reply_markup,
             "disable_notification": notif,
+            "reply_to_message_id": reply
         }
         response = requests.post(
             f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json=(data)
