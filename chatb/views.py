@@ -201,14 +201,13 @@ class ChatBotView(View):
         return JsonResponse({"ok": "POST request processed"})
 
     @staticmethod
-    def send_message(message, chat_id, reply_markup=None, notif=True, reply=None):
+    def send_message(message, chat_id, reply_markup=None, notif=True):
         data = {
             "chat_id": chat_id,
             "text": message,
             "parse_mode": "Markdown",
             "reply_markup": reply_markup,
             "disable_notification": notif,
-            "reply_to_message_id": reply
         }
         response = requests.post(
             f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json=(data)
