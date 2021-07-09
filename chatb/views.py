@@ -103,8 +103,9 @@ class ChatBotView(View):
                     self.send_message("Report not done", t_id)
                 else:
                     if text is not None:
-                        self.send_message(
-                            text, chat['match_id'], reply=replyId)
+                        self.send_message(text, chat['match_id'], replyId)
+                        print(self.send_message(
+                            text, chat['match_id'], replyId))
                         print("sent")
                     else:
                         self.send_sticker(sticker, chat['match_id'])
@@ -172,7 +173,7 @@ class ChatBotView(View):
             "reply_to_message_id": reply
         }
         response = requests.post(
-            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json=(data)
+            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", data=(data)
         )
         return response.json()
 
@@ -189,16 +190,28 @@ class ChatBotView(View):
         return response.json()
 
     @staticmethod
-    def send_photo(message, chat_id, reply_markup='', notif=True):
+    def send_photo(photo, chat_id, caption):
         data = {
             "chat_id": chat_id,
-            "text": message,
+            "photo": photo,
+            "caption": caption,
             "parse_mode": "Markdown",
-            "reply_markup": reply_markup,
-            "disable_notification": notif
         }
         response = requests.post(
-            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json=(data)
+            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendPhoto", json=(data)
+        )
+        return response.json()
+
+    @staticmethod
+    def send_audio(audio, chat_id, caption):
+        data = {
+            "chat_id": chat_id,
+            "audio": audio,
+            "caption": caption,
+            "parse_mode": "Markdown",
+        }
+        response = requests.post(
+            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendAudio", json=(data)
         )
         return response.json()
 
