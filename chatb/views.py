@@ -68,6 +68,11 @@ class ChatBotView(View):
                     self.send_message(msg, t_id)
                     return JsonResponse({"ok": "POST request processed"})
 
+            if "reply_to_message" in t_message:
+                replyId = t_message["reply_to_message"]["message_id"]
+            else:
+                replyId = None
+
             # Send introductory message regardless of registered status
             if text == "/start":
                 self.send_message(startText, t_id)
@@ -95,7 +100,8 @@ class ChatBotView(View):
                     self.send_message("Report not done", t_id)
                 else:
                     if text is not None:
-                        self.send_message(text, chat['match_id'])
+                        self.send_message(
+                            text, chat['match_id'], reply=replyId)
                     else:
                         self.send_sticker(sticker, chat['match_id'])
             # Handle free user input other than /end when queued
@@ -152,13 +158,14 @@ class ChatBotView(View):
         return JsonResponse({"ok": "POST request processed"})
 
     @staticmethod
-    def send_message(message, chat_id, reply_markup='', notif=True):
+    def send_message(message, chat_id, reply_markup='', notif=True, reply=None):
         data = {
             "chat_id": chat_id,
             "text": message,
             "parse_mode": "Markdown",
             "reply_markup": reply_markup,
-            "disable_notification": notif
+            "disable_notification": notif,
+            "reply_to_message_id": reply
         }
         response = requests.post(
             f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json=(data)
@@ -174,6 +181,20 @@ class ChatBotView(View):
 
         response = requests.post(
             f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendSticker", json=(data)
+        )
+        return response.json()
+
+    @staticmethod
+    def send_photo(message, chat_id, reply_markup='', notif=True):
+        data = {
+            "chat_id": chat_id,
+            "text": message,
+            "parse_mode": "Markdown",
+            "reply_markup": reply_markup,
+            "disable_notification": notif
+        }
+        response = requests.post(
+            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json=(data)
         )
         return response.json()
 
