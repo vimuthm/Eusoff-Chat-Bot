@@ -70,8 +70,11 @@ class ChatBotView(View):
 
             if "reply_to_message" in t_message:
                 replyId = t_message["reply_to_message"]["message_id"]
+                print(replyId)
+                print(type(replyId))
             else:
                 replyId = None
+                print("dont have")
 
             # Send introductory message regardless of registered status
             if text == "/start":
@@ -102,6 +105,7 @@ class ChatBotView(View):
                     if text is not None:
                         self.send_message(
                             text, chat['match_id'], reply=replyId)
+                        print("sent")
                     else:
                         self.send_sticker(sticker, chat['match_id'])
             # Handle free user input other than /end when queued
