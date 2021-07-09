@@ -60,9 +60,13 @@ class ChatBotView(View):
                 text = t_message["text"].strip()
                 print(text + ' ' + str(t_id))
             except Exception as e:
-                msg = "Unable to parse the text"
-                self.send_message(msg, t_id)
-                return JsonResponse({"ok": "POST request processed"})
+                try:
+                    text = None
+                    sticker = t_message["sticker"]["file_id"]
+                except Exception as e:
+                    msg = "Unable to parse the text"
+                    self.send_message(msg, t_id)
+                    return JsonResponse({"ok": "POST request processed"})
 
             # Send introductory message regardless of registered status
             if text == "/start":
@@ -90,7 +94,10 @@ class ChatBotView(View):
                 if text == "/report":
                     self.send_message("Report not done", t_id)
                 else:
-                    self.send_message(text, chat['match_id'])
+                    if text is not None:
+                        self.send_message(text, chat['match_id'])
+                    else:
+                        self.send_sticker(sticker, chat['match_id'])
             # Handle free user input other than /end when queued
             elif chat['state'] == "queued":
                 msg = "Please wait, searching for a match! Press /end to stop searching"
@@ -155,6 +162,18 @@ class ChatBotView(View):
         }
         response = requests.post(
             f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json=(data)
+        )
+        return response.json()
+
+    @staticmethod
+    def send_sticker(sticker, chat_id):
+        data = {
+            "chat_id": chat_id,
+            "sticker": sticker
+        }
+
+        response = requests.post(
+            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendSticker", json=(data)
         )
         return response.json()
 
