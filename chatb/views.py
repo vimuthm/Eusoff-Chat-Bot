@@ -201,7 +201,7 @@ class ChatBotView(View):
         return JsonResponse({"ok": "POST request processed"})
 
     @staticmethod
-    def send_message(message, chat_id, reply_markup=None, notif=True):
+    def send_message(message, chat_id, reply_markup="", notif=True):
         data = {
             "chat_id": chat_id,
             "text": message,
