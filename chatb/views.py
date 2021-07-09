@@ -36,13 +36,14 @@ startText = "Hi there and\n\n" + \
 
 msg404 = "Aw, Snap! I'm broken and my devs are too tired to fix me :("
 
-# https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
+allowedFormats = set(["sticker", "document", "audio", "photo", 
+                      "video", "voice", "video_note"])
 
+# https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
 
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
         t_data = json.loads(request.body)
-        print(t_data)
 
         # Handle rating feedback
         if "callback_query" in t_data:
@@ -58,46 +59,18 @@ class ChatBotView(View):
             text = None
 
             try:
-                text = t_message["text"].strip()
+                text = t_message["text"]
                 print(text + ' ' + str(t_id))
             except Exception as e:
-                try:
-                    t_message["sticker"]["file_id"]
-                except Exception as e:
-                    try:
-                        t_message["document"]["file_id"]
-                    except Exception as e:
-                        try:
-                            t_message["audio"]["file_id"]
-                        except Exception as e:
-                            try:
-                                t_message["photo"]
-                            except Exception as e:
-                                try:
-                                    t_message["video"]["file_id"]
-                                except Exception as e:
-                                    try:
-                                        t_message["voice"]["file_id"]
-                                    except Exception as e:
-                                        try:
-                                            t_message["video_note"]["file_id"]
-                                        except Exception as e:
-                                            msg = "Unable to parse the text"
-                                            self.send_message(msg, t_id)
-                                            return JsonResponse({"ok": "POST request processed"})
+                if not set(t_message).intersection(allowedFormats):
+                    msg = "Unable to parse the text"
+                    self.send_message(msg, t_id)
+                    return JsonResponse({"ok": "POST request processed"})
 
-            if "caption" in t_message:
-                caption = t_message["caption"]
-            else:
-                caption = ""
-
-            if "reply_to_message" in t_message:
-                replyId = t_message["reply_to_message"]["message_id"]
-                print(replyId)
-                print(type(replyId))
-            else:
-                replyId = None
-                print("dont have")
+            caption = t_message["caption"] \
+                        if "caption" in t_message else ""
+            replyId = t_message["reply_to_message"]["message_id"] \
+                        if "reply_to_message" in t_message else None
 
             # Send introductory message regardless of registered status
             if text == "/start":
@@ -130,12 +103,13 @@ class ChatBotView(View):
                     elif "sticker" in t_message:
                         self.send_sticker(
                             t_message["sticker"]["file_id"], chat['match_id'])
+                    elif "video_note" in t_message:
+                        self.send_videoNote(
+                            t_message["video_note"]["file_id"], chat['match_id'])
                     elif "document" in t_message:
                         self.send_document(
                             t_message["document"]["file_id"], chat['match_id'], caption)
                     elif "photo" in t_message:
-                        print(t_message["photo"][0])
-                        print(t_message["photo"][0]["file_id"])
                         self.send_photo(
                             t_message["photo"][0]["file_id"], chat['match_id'], caption)
                     elif "audio" in t_message:
@@ -147,29 +121,26 @@ class ChatBotView(View):
                     elif "voice" in t_message:
                         self.send_voice(
                             t_message["voice"]["file_id"], chat['match_id'], caption)
-                    elif "video_note" in t_message:
-                        self.send_videoNote(
-                            t_message["video_note"]["file_id"], chat['match_id'])
 
             # Handle free user input other than /end when queued
             elif chat['state'] == "queued":
                 msg = "Please wait, searching for a match! Press /end to stop searching"
                 self.send_message(msg, t_id)
             elif text == "/dontrunthisoryouwillbefired":
-                self.send_message(
-                    "Ahh tried to pull a sneaky one huh... \n...knew yall cant be trusted 😩✋", t_id)
+                msg = "Ahh tried to pull a sneaky one huh... \n...knew yall cant be trusted 😩✋"
+                self.send_message(msg, t_id)
             # Start the matching background process
             elif text == "/dontrunthisoryouwillbefiredadmin":
                 print("Going to add to queue")
                 match(repeat=1)
                 print("Added to queue")
-                msg = "I really really hope your either Vimuth or Jared 🤞"
+                msg = "I really really hope youre either Vimuth or Jared 🤞"
                 self.send_message(msg, t_id)
             elif text == "/dontrunthisoryouwillbefiredtrain":
                 print("Going to add to queue")
                 train()
                 print("Added to queue")
-                msg = "I really really hope your either Vimuth or Jared 🤞"
+                msg = "I really really hope youre either Vimuth or Jared 🤞"
                 self.send_message(msg, t_id)
             # Handle /register when already registered
             elif text == "/register":

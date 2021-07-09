@@ -72,9 +72,7 @@ def match():
         #         terminateMessage, t_id, sentMessage['result']['message_id'])
         #     chatb_collection.update_one(queryChatId(
         #         t_id), {"$set": {"state": "untethered"}})
-        #     break
-    
-    
+        #     break  
     print("welp")
 
 @background(schedule=0)
