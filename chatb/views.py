@@ -55,18 +55,38 @@ class ChatBotView(View):
             t_id = t_chat["id"]
             queryChatId = {"chat_id": t_id}
             chat = chatb_collection.find_one(queryChatId)
+            text = None
 
             try:
                 text = t_message["text"].strip()
                 print(text + ' ' + str(t_id))
             except Exception as e:
                 try:
-                    text = None
-                    sticker = t_message["sticker"]["file_id"]
+                    t_message["sticker"]["file_id"]
                 except Exception as e:
-                    msg = "Unable to parse the text"
-                    self.send_message(msg, t_id)
-                    return JsonResponse({"ok": "POST request processed"})
+                    try:
+                        t_message["document"]["file_id"]
+                    except Exception as e:
+                        try:
+                            t_message["audio"]["file_id"]
+                        except Exception as e:
+                            try:
+                                t_message["photo"]["file_id"]
+                            except Exception as e:
+                                try:
+                                    t_message["video"]["file_id"]
+                                except Exception as e:
+                                    try:
+                                        t_message["voice"]["file_id"]
+                                    except Exception as e:
+                                        msg = "Unable to parse the text"
+                                        self.send_message(msg, t_id)
+                                        return JsonResponse({"ok": "POST request processed"})
+
+            if "caption" in t_message:
+                caption = t_message["caption"]
+            else:
+                caption = ""
 
             if "reply_to_message" in t_message:
                 replyId = t_message["reply_to_message"]["message_id"]
@@ -107,8 +127,24 @@ class ChatBotView(View):
                         print(self.send_message(
                             text, chat['match_id'], replyId))
                         print("sent")
-                    else:
-                        self.send_sticker(sticker, chat['match_id'])
+                    elif "sticker" in t_message:
+                        self.send_sticker(
+                            t_message["sticker"]["file_id"], chat['match_id'])
+                    elif "document" in t_message:
+                        self.send_document(
+                            t_message["document"]["file_id"], chat['match_id'], caption)
+                    elif "photo" in t_message:
+                        self.send_photo(
+                            t_message["photo"]["file_id"], chat['match_id'], caption)
+                    elif "audio" in t_message:
+                        self.send_audio(
+                            t_message["audio"]["file_id"], chat['match_id'], caption)
+                    elif "video" in t_message:
+                        self.send_video(
+                            t_message["video"]["file_id"], chat['match_id'], caption)
+                    elif "voice" in t_message:
+                        self.send_voice(
+                            t_message["voice"]["file_id"], chat['match_id'], caption)
             # Handle free user input other than /end when queued
             elif chat['state'] == "queued":
                 msg = "Please wait, searching for a match! Press /end to stop searching"
@@ -173,7 +209,7 @@ class ChatBotView(View):
             "reply_to_message_id": reply
         }
         response = requests.post(
-            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", data=(data)
+            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json=(data)
         )
         return response.json()
 
@@ -190,7 +226,7 @@ class ChatBotView(View):
         return response.json()
 
     @staticmethod
-    def send_photo(photo, chat_id, caption):
+    def send_photo(photo, chat_id, caption=""):
         data = {
             "chat_id": chat_id,
             "photo": photo,
@@ -203,7 +239,7 @@ class ChatBotView(View):
         return response.json()
 
     @staticmethod
-    def send_audio(audio, chat_id, caption):
+    def send_audio(audio, chat_id, caption=""):
         data = {
             "chat_id": chat_id,
             "audio": audio,
@@ -212,6 +248,45 @@ class ChatBotView(View):
         }
         response = requests.post(
             f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendAudio", json=(data)
+        )
+        return response.json()
+
+    @staticmethod
+    def send_document(document, chat_id, caption=""):
+        data = {
+            "chat_id": chat_id,
+            "document": document,
+            "caption": caption,
+            "parse_mode": "Markdown",
+        }
+        response = requests.post(
+            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendDocument", json=(data)
+        )
+        return response.json()
+
+    @staticmethod
+    def send_voice(voice, chat_id, caption=""):
+        data = {
+            "chat_id": chat_id,
+            "voice": voice,
+            "caption": caption,
+            "parse_mode": "Markdown",
+        }
+        response = requests.post(
+            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendVoice", json=(data)
+        )
+        return response.json()
+
+    @staticmethod
+    def send_video(video, chat_id, caption=""):
+        data = {
+            "chat_id": chat_id,
+            "video": video,
+            "caption": caption,
+            "parse_mode": "Markdown",
+        }
+        response = requests.post(
+            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendVideo", json=(data)
         )
         return response.json()
 
