@@ -71,7 +71,7 @@ class ChatBotView(View):
                             t_message["audio"]["file_id"]
                         except Exception as e:
                             try:
-                                t_message["photo"]["file_id"]
+                                t_message["photo"]
                             except Exception as e:
                                 try:
                                     t_message["video"]["file_id"]
@@ -135,9 +135,7 @@ class ChatBotView(View):
                             t_message["document"]["file_id"], chat['match_id'], caption)
                     elif "photo" in t_message:
                         self.send_photo(
-                            t_message["photo"]["file_id"], chat['match_id'], caption)
-                        print(self.send_photo(
-                            t_message["photo"]["file_id"], chat['match_id'], caption))
+                            t_message["photo"][0]["file_id"], chat['match_id'], caption)
                     elif "audio" in t_message:
                         self.send_audio(
                             t_message["audio"]["file_id"], chat['match_id'], caption)
