@@ -123,9 +123,9 @@ class ChatBotView(View):
                     self.send_message("Report not done", t_id)
                 else:
                     if text is not None:
-                        self.send_message(text, chat['match_id'], replyId)
+                        self.send_message(text, chat['match_id'])
                         print(self.send_message(
-                            text, chat['match_id'], replyId))
+                            text, chat['match_id']))
                         print("sent")
                     elif "sticker" in t_message:
                         self.send_sticker(
@@ -136,6 +136,8 @@ class ChatBotView(View):
                     elif "photo" in t_message:
                         self.send_photo(
                             t_message["photo"]["file_id"], chat['match_id'], caption)
+                        print(self.send_photo(
+                            t_message["photo"]["file_id"], chat['match_id'], caption))
                     elif "audio" in t_message:
                         self.send_audio(
                             t_message["audio"]["file_id"], chat['match_id'], caption)
