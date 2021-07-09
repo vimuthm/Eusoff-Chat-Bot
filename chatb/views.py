@@ -79,9 +79,12 @@ class ChatBotView(View):
                                     try:
                                         t_message["voice"]["file_id"]
                                     except Exception as e:
-                                        msg = "Unable to parse the text"
-                                        self.send_message(msg, t_id)
-                                        return JsonResponse({"ok": "POST request processed"})
+                                        try:
+                                            t_message["video_note"]["file_id"]
+                                        except Exception as e:
+                                            msg = "Unable to parse the text"
+                                            self.send_message(msg, t_id)
+                                            return JsonResponse({"ok": "POST request processed"})
 
             if "caption" in t_message:
                 caption = t_message["caption"]
@@ -123,11 +126,7 @@ class ChatBotView(View):
                     self.send_message("Report not done", t_id)
                 else:
                     if text is not None:
-                        self.send_message(
-                            text, chat['match_id'], reply=replyId)
-                        print(self.send_message(
-                            text, chat['match_id'], reply=replyId))
-                        print("sent")
+                        self.send_message(text, chat['match_id'])
                     elif "sticker" in t_message:
                         self.send_sticker(
                             t_message["sticker"]["file_id"], chat['match_id'])
@@ -148,6 +147,10 @@ class ChatBotView(View):
                     elif "voice" in t_message:
                         self.send_voice(
                             t_message["voice"]["file_id"], chat['match_id'], caption)
+                    elif "video_note" in t_message:
+                        self.send_videoNote(
+                            t_message["video_note"]["file_id"], chat['match_id'])
+
             # Handle free user input other than /end when queued
             elif chat['state'] == "queued":
                 msg = "Please wait, searching for a match! Press /end to stop searching"
@@ -202,14 +205,13 @@ class ChatBotView(View):
         return JsonResponse({"ok": "POST request processed"})
 
     @staticmethod
-    def send_message(message, chat_id, reply_markup={}, notif=True, reply=None):
+    def send_message(message, chat_id, reply_markup={}, notif=True):
         data = {
             "chat_id": chat_id,
             "text": message,
             "parse_mode": "Markdown",
             "reply_markup": reply_markup,
             "disable_notification": notif,
-            "reply_to_message_id": reply
         }
         response = requests.post(
             f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json=(data)
@@ -290,6 +292,17 @@ class ChatBotView(View):
         }
         response = requests.post(
             f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendVideo", json=(data)
+        )
+        return response.json()
+
+    @staticmethod
+    def send_videoNote(video_note, chat_id, caption=""):
+        data = {
+            "chat_id": chat_id,
+            "video_note": video_note,
+        }
+        response = requests.post(
+            f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendVideoNote", json=(data)
         )
         return response.json()
 
