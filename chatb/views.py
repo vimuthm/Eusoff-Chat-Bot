@@ -25,7 +25,7 @@ helpText = "/start : To understand what this bot can do\n" + \
            "/help : To get a list of bot commands\n" + \
            "/match : To match with another Eusoffian\n" + \
            "/end : To end a chat\n" + \
-           "/report : To report a user (only while matched)\n"        
+           "/report : To report a user (only while matched)\n"
 
 startText = "Hi there and\n\n" + \
             "           Welcome to the Eusoff Chat Bot!!!\n\n" + \
@@ -38,9 +38,11 @@ msg404 = "Aw, Snap! I'm broken and my devs are too tired to fix me :("
 
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
 
+
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
         t_data = json.loads(request.body)
+        print(t_data)
 
         # Handle rating feedback
         if "callback_query" in t_data:
@@ -61,7 +63,7 @@ class ChatBotView(View):
                 msg = "Unable to parse the text"
                 self.send_message(msg, t_id)
                 return JsonResponse({"ok": "POST request processed"})
-            
+
             # Send introductory message regardless of registered status
             if text == "/start":
                 self.send_message(startText, t_id)
@@ -86,23 +88,24 @@ class ChatBotView(View):
             # Handle free user input (anon chat) and /report when matched
             elif chat['state'] == "matched":
                 if text == "/report":
-                    self.send_message("Report not done", t_id)                    
+                    self.send_message("Report not done", t_id)
                 else:
                     self.send_message(text, chat['match_id'])
             # Handle free user input other than /end when queued
             elif chat['state'] == "queued":
                 msg = "Please wait, searching for a match! Press /end to stop searching"
                 self.send_message(msg, t_id)
-            elif text == "/dontrunthisoryouwillbefired":                
-                self.send_message("Ahh tried to pull a sneaky one huh... \n...knew yall cant be trusted 😩✋", t_id)
+            elif text == "/dontrunthisoryouwillbefired":
+                self.send_message(
+                    "Ahh tried to pull a sneaky one huh... \n...knew yall cant be trusted 😩✋", t_id)
             # Start the matching background process
-            elif text == "/dontrunthisoryouwillbefiredadmin":                
+            elif text == "/dontrunthisoryouwillbefiredadmin":
                 print("Going to add to queue")
                 match(repeat=1)
                 print("Added to queue")
                 msg = "I really really hope your either Vimuth or Jared 🤞"
                 self.send_message(msg, t_id)
-            elif text == "/dontrunthisoryouwillbefiredtrain": 
+            elif text == "/dontrunthisoryouwillbefiredtrain":
                 print("Going to add to queue")
                 train()
                 print("Added to queue")
@@ -117,16 +120,18 @@ class ChatBotView(View):
                 self.send_message(helpText, t_id)
             # Handle /match by changing state to queued
             elif text == "/match":
-                chatb_collection.update_one(queryChatId, {"$set": {"state": "queued"}})      
+                chatb_collection.update_one(
+                    queryChatId, {"$set": {"state": "queued"}})
             elif text == "/ai":
-                chatb_collection.update_one(queryChatId, {"$set": {"state": "ai"}})  
-                self.send_message("Hi, I'm Herbert!!", t_id)    
-            # Free user input except when queued/matched        
+                chatb_collection.update_one(
+                    queryChatId, {"$set": {"state": "ai"}})
+                self.send_message("Hi, I'm Herbert!!", t_id)
+            # Free user input except when queued/matched
             else:
                 # Handle register inputs
                 if chat['state'] == "register":
-                    msg = self.handleRegister(chatb_collection, t_id, text)   
-                # Handle reported reason   
+                    msg = self.handleRegister(chatb_collection, t_id, text)
+                # Handle reported reason
                 elif chat['state'] == "ai":
                     msg = chatwAI(text)
                 elif chat['state'] == "report":
@@ -178,7 +183,7 @@ class ChatBotView(View):
         self.send_message(msg, person1)
 
         chatb_collection.update_one(
-            {"chat_id": person1}, 
+            {"chat_id": person1},
             {
                 "$unset": {"match_id": ""}
             }
@@ -191,7 +196,7 @@ class ChatBotView(View):
                 "$inc": {"count": 1}
             }
         )
-    
+
     def handleRegister(self, chatb_collection, t_id, text):
         try:
             name, room = text.split(' ')
@@ -200,12 +205,12 @@ class ChatBotView(View):
                 {"chat_id": t_id},
                 {
                     "$set": {
-                                "state": "untethered",
-                                "name": name,
-                                "room": room,
-                                "count": 0,
-                                "rating": 0
-                            }
+                        "state": "untethered",
+                        "name": name,
+                        "room": room,
+                        "count": 0,
+                        "rating": 0
+                    }
                 }
             )
             msg = "Successfully registered!"
