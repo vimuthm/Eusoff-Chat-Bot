@@ -6,8 +6,8 @@ from django.http import JsonResponse
 from django.views import View
 
 from .models import chatb_collection, chatb_reports
-from .tasks import match, train, chatwAI
-# from .foo import aiChat
+from .tasks import match
+# , train, chatwAI
 
 
 TELEGRAM_URL = "https://api.telegram.org/bot"

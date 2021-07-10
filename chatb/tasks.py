@@ -1,6 +1,6 @@
 from background_task import background
-from chatterbot import ChatBot
-from chatterbot.trainers import ChatterBotCorpusTrainer
+# from chatterbot import ChatBot
+# from chatterbot.trainers import ChatterBotCorpusTrainer
 
 from .models import chatb_collection
 
