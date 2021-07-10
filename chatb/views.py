@@ -5,7 +5,7 @@ import requests
 from django.http import JsonResponse
 from django.views import View
 
-from .models import chatb_collection
+from .models import chatb_collection, chatb_reports
 from .tasks import match, train, chatwAI
 # from .foo import aiChat
 
@@ -84,10 +84,20 @@ class ChatBotView(View):
                     msg = "Please enter your name and room. Ex: John A101"
                     reply_markup = {"force_reply": True,
                                     "input_field_placeholder": "John A101"}
-                    self.send_message(msg, t_id, reply_markup=reply_markup)
+                    self.send_message(msg, t_id, reply_markup=reply_markup)                    
+                    fromUser = t_message["from"]
+                    tele = fromUser["username"] \
+                            if "username" in fromUser else ""
+                    first = fromUser["first_name"] \
+                            if "first_name" in fromUser else ""
+                    last = fromUser["last_name"] \
+                            if "last_name" in fromUser else ""
                     chat = {
                         "chat_id": t_id,
-                        "state": "register"
+                        "state": "register",
+                        "tele": tele,
+                        "first_name": first,
+                        "last_name": last
                     }
                     chatb_collection.insert_one(chat)
             # Handle /end when queued and matched
@@ -96,7 +106,29 @@ class ChatBotView(View):
             # Handle free user input (anon chat) and /report when matched
             elif chat['state'] == "matched":
                 if text == "/report":
-                    self.send_message("Report not done", t_id)
+                    reported = chatb_collection.find_one({"chat_id": chat["match_id"]})
+                    report = {
+                        "submitter": t_id,
+                        "submitter_tele": chat["tele"],
+                        "reported": chat["match_id"],
+                        "reported_tele": reported["tele"],
+                        "state": "report"
+                    }
+                    chatb_reports.insert_one(report)
+                    chatb_collection.update_one(
+                        {"chat_id": chat["match_id"]}, 
+                        {"$set": {"state": "untethered"},
+                         "$unset": {"match_id": ""}}
+                    )
+                    chatb_collection.update_one(
+                        queryChatId, 
+                        {"$set": {"state": "report"}}
+                    )
+                    msg1 = "The chat has been stopped. Please enter your reason for reporting"
+                    reply_markup = {"force_reply": True}
+                    self.send_message(msg1, t_id, reply_markup=reply_markup) 
+                    msg2 = "Your chat has been ended."
+                    self.send_message(msg2, chat["match_id"]) 
                 else:
                     if text is not None:
                         self.send_message(text, chat['match_id'])
@@ -162,11 +194,22 @@ class ChatBotView(View):
                 # Handle register inputs
                 if chat['state'] == "register":
                     msg = self.handleRegister(chatb_collection, t_id, text)
+                # elif chat['state'] == "ai":
+                #     msg = chatwAI(text)
                 # Handle reported reason
-                elif chat['state'] == "ai":
-                    msg = chatwAI(text)
                 elif chat['state'] == "report":
-                    msg = "Reporting user (WIP)"
+                    chatb_reports.update_one(
+                        {
+                            "submitter": t_id,
+                            "reported": chat["match_id"]
+                        },
+                        {"$set": {"reason": text}}
+                    )
+                    chatb_collection.update_one(
+                        queryChatId, 
+                        {"$set": {"state": "untethered"}}
+                    )
+                    msg = "Reported user. You can /match to search again."
                 else:
                     msg = "Unknown command"
                 self.send_message(msg, t_id)

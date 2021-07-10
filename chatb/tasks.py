@@ -14,13 +14,14 @@ TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
 count = 0
 waitMessage = "Looking for another Eusoffian."
 messageDict = {}
-chatbot = ChatBot(
-        'Herbert',
-        logic_adapters=[
-            'chatterbot.logic.BestMatch',
-            'chatterbot.logic.MathematicalEvaluation'
-        ]
-    )
+
+# chatbot = ChatBot(
+#         'Herbert',
+#         logic_adapters=[
+#             'chatterbot.logic.BestMatch',
+#             'chatterbot.logic.MathematicalEvaluation'
+#         ]
+#     )
 
 @background(schedule=0)
 def match():
@@ -83,26 +84,22 @@ def match():
         messageDict = {}
     print("welp")
 
-@background(schedule=0)
-def dots():
-    print("TODO")
+# @background(schedule=0)
+# def train():
+#     global chatbot 
+#     trainer = ChatterBotCorpusTrainer(chatbot)
 
-@background(schedule=0)
-def train():
-    global chatbot 
-    trainer = ChatterBotCorpusTrainer(chatbot)
+#     trainer.train("chatterbot.corpus.english")
+#     trainer.train("chatterbot.corpus.english.greetings")
+#     trainer.train("chatterbot.corpus.english.conversations")
 
-    trainer.train("chatterbot.corpus.english")
-    trainer.train("chatterbot.corpus.english.greetings")
-    trainer.train("chatterbot.corpus.english.conversations")
-
-def chatwAI(input):
-    try:
-        msg = chatbot.get_response(input).text
-    except Exception as e:
-        print(e)
-        msg = "F I'm dumb"
-    return msg
+# def chatwAI(input):
+#     try:
+#         msg = chatbot.get_response(input).text
+#     except Exception as e:
+#         print(e)
+#         msg = "F I'm dumb"
+#     return msg
 
 def send_message(message, chat_id, reply_markup='', notif=True):
     data = {
