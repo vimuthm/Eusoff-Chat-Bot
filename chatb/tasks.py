@@ -6,6 +6,7 @@ from .models import chatb_collection
 
 import requests
 import os
+import datetime
 
 TELEGRAM_URL = "https://api.telegram.org/bot"
 TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
@@ -51,28 +52,35 @@ def match():
         send_message(successMessage, person1)
         send_message(successMessage, person2)
 
-    if (inQueue % 2 == 1):
+    if (inQueue == 1):
         global count
         global waitMessage
+        global messageDict
         lastPerson = personsInQueue[inQueue - 1]["chat_id"]
         waitMessageX = waitMessage + count * "."
-        sentMessage = send_message(waitMessageX, lastPerson, '', False)
-        #debug stmt
-        send_message(count, lastPerson, '', False)
+
+        if lastPerson in messageDict:
+            waitDiff = datetime.datetime.now() - messageDict[lastPerson]["time"]
+            waitTime = waitDiff.total_seconds()
+            if waitTime <= 30:
+                update_message(waitMessageX, lastPerson, messageDict[lastPerson]["message_id"])
+            else:
+                msg = "Sorry, there seems to be no one online at the moment. Try again later."
+                chatb_collection.update_one(
+                    queryChatId(lastPerson),
+                    {"$set": {"state": "untethered"}}
+                )
+                send_message(msg, lastPerson)
+        else:
+            sentMessage = send_message(waitMessageX, lastPerson, '', False)
+            messageDict[lastPerson] = {
+                "message_id": sentMessage['result']['message_id'],
+                "time": datetime.datetime.now()
+            }
         
-        # update_message(waitMessageX, lastPerson,
-        #                     sentMessage['result']['message_id'])
-
         count = (count + 1) % 3
-
-        # Handle timeout
-        # if count > 20:
-        #     terminateMessage = "Sorry, there are no Eusoffians available at the moment."
-        #     update_message(
-        #         terminateMessage, t_id, sentMessage['result']['message_id'])
-        #     chatb_collection.update_one(queryChatId(
-        #         t_id), {"$set": {"state": "untethered"}})
-        #     break  
+    else:
+        messageDict = {}
     print("welp")
 
 @background(schedule=0)
