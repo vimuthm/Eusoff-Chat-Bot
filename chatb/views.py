@@ -164,16 +164,16 @@ class ChatBotView(View):
             # Start the matching background process
             elif text == "/dontrunthisoryouwillbefiredadmin":
                 print("Going to add to queue")
-                match(repeat=1)
+                match(repeat=0.4)
                 print("Added to queue")
                 msg = "I really really hope youre either Vimuth or Jared 🤞"
                 self.send_message(msg, t_id)
-            elif text == "/dontrunthisoryouwillbefiredtrain":
-                print("Going to add to queue")
-                train()
-                print("Added to queue")
-                msg = "I really really hope youre either Vimuth or Jared 🤞"
-                self.send_message(msg, t_id)
+            # elif text == "/dontrunthisoryouwillbefiredtrain":
+            #     print("Going to add to queue")
+            #     train()
+            #     print("Added to queue")
+            #     msg = "I really really hope youre either Vimuth or Jared 🤞"
+            #     self.send_message(msg, t_id)
             # Handle /register when already registered
             elif text == "/register":
                 msg = "You have already been registered, %s." % chat['name']
@@ -185,10 +185,10 @@ class ChatBotView(View):
             elif text == "/match":
                 chatb_collection.update_one(
                     queryChatId, {"$set": {"state": "queued"}})
-            elif text == "/ai":
-                chatb_collection.update_one(
-                    queryChatId, {"$set": {"state": "ai"}})
-                self.send_message("Hi, I'm Herbert!!", t_id)
+            # elif text == "/ai":
+            #     chatb_collection.update_one(
+            #         queryChatId, {"$set": {"state": "ai"}})
+            #     self.send_message("Hi, I'm Herbert!!", t_id)
             # Free user input except when queued/matched
             else:
                 # Handle register inputs

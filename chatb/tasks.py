@@ -63,7 +63,7 @@ def match():
         if lastPerson in messageDict:
             waitDiff = datetime.datetime.now() - messageDict[lastPerson]["time"]
             waitTime = waitDiff.total_seconds()
-            if waitTime <= 30:
+            if waitTime <= 60:
                 update_message(waitMessageX, lastPerson, messageDict[lastPerson]["message_id"])
             else:
                 msg = "Sorry, there seems to be no one online at the moment. Try again later."
