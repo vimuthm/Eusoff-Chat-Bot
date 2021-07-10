@@ -95,7 +95,7 @@ class ChatBotView(View):
                     chat = {
                         "chat_id": t_id,
                         "state": "register",
-                        "tele": tele,
+                        "tele": "@" + tele,
                         "first_name": first,
                         "last_name": last
                     }
@@ -164,7 +164,7 @@ class ChatBotView(View):
             # Start the matching background process
             elif text == "/dontrunthisoryouwillbefiredadmin":
                 print("Going to add to queue")
-                match(repeat=0.4)
+                match(repeat=1)
                 print("Added to queue")
                 msg = "I really really hope youre either Vimuth or Jared 🤞"
                 self.send_message(msg, t_id)
