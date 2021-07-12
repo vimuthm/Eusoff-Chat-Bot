@@ -344,8 +344,8 @@ class ChatBotView(View):
         person2 = p1_data["match_id"]
         p2_data = chatb_collection.find_one({"chat_id": person2})
 
-        newRating = (p2_data["rating"] * p2_data["count"] + int(t_callbackData)) /
-        (p2_data["count"] + 1)
+        newRating = (p2_data["rating"] * p2_data["count"] +
+                     int(t_callbackData)) / (p2_data["count"] + 1)
 
         msg = "Thanks for the rating. Press /match to have another conversation."
         self.send_message(msg, person1)
