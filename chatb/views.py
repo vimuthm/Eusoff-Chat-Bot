@@ -36,10 +36,11 @@ startText = "Hi there and\n\n" + \
 
 msg404 = "Aw, Snap! I'm broken and my devs are too tired to fix me :("
 
-allowedFormats = set(["sticker", "document", "audio", "photo", 
+allowedFormats = set(["sticker", "document", "audio", "photo",
                       "video", "voice", "video_note"])
 
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
+
 
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
@@ -68,9 +69,9 @@ class ChatBotView(View):
                     return JsonResponse({"ok": "POST request processed"})
 
             caption = t_message["caption"] \
-                        if "caption" in t_message else ""
+                if "caption" in t_message else ""
             replyId = t_message["reply_to_message"]["message_id"] \
-                        if "reply_to_message" in t_message else None
+                if "reply_to_message" in t_message else None
 
             # Send introductory message regardless of registered status
             if text == "/start":
@@ -84,14 +85,14 @@ class ChatBotView(View):
                     msg = "Please enter your name and room. Ex: John A101"
                     reply_markup = {"force_reply": True,
                                     "input_field_placeholder": "John A101"}
-                    self.send_message(msg, t_id, reply_markup=reply_markup)                    
+                    self.send_message(msg, t_id, reply_markup=reply_markup)
                     fromUser = t_message["from"]
                     tele = fromUser["username"] \
-                            if "username" in fromUser else ""
+                        if "username" in fromUser else ""
                     first = fromUser["first_name"] \
-                            if "first_name" in fromUser else ""
+                        if "first_name" in fromUser else ""
                     last = fromUser["last_name"] \
-                            if "last_name" in fromUser else ""
+                        if "last_name" in fromUser else ""
                     chat = {
                         "chat_id": t_id,
                         "state": "register",
@@ -106,7 +107,8 @@ class ChatBotView(View):
             # Handle free user input (anon chat) and /report when matched
             elif chat['state'] == "matched":
                 if text == "/report":
-                    reported = chatb_collection.find_one({"chat_id": chat["match_id"]})
+                    reported = chatb_collection.find_one(
+                        {"chat_id": chat["match_id"]})
                     report = {
                         "submitter": t_id,
                         "submitter_tele": chat["tele"],
@@ -116,19 +118,19 @@ class ChatBotView(View):
                     }
                     chatb_reports.insert_one(report)
                     chatb_collection.update_one(
-                        {"chat_id": chat["match_id"]}, 
+                        {"chat_id": chat["match_id"]},
                         {"$set": {"state": "untethered"},
                          "$unset": {"match_id": ""}}
                     )
                     chatb_collection.update_one(
-                        queryChatId, 
+                        queryChatId,
                         {"$set": {"state": "report"}}
                     )
                     msg1 = "The chat has been stopped. Please enter your reason for reporting"
                     reply_markup = {"force_reply": True}
-                    self.send_message(msg1, t_id, reply_markup=reply_markup) 
+                    self.send_message(msg1, t_id, reply_markup=reply_markup)
                     msg2 = "Your chat has been ended."
-                    self.send_message(msg2, chat["match_id"]) 
+                    self.send_message(msg2, chat["match_id"])
                 else:
                     if text is not None:
                         self.send_message(text, chat['match_id'])
@@ -175,6 +177,9 @@ class ChatBotView(View):
             #     msg = "I really really hope youre either Vimuth or Jared 🤞"
             #     self.send_message(msg, t_id)
             # Handle /register when already registered
+            elif text == "/adminleaderboard":
+                chatb_collection.find().sort({"rating": -1}).limit(10)
+                print(chatb_collection)
             elif text == "/register":
                 msg = "You have already been registered, %s." % chat['name']
                 self.send_message(msg, t_id)
@@ -206,7 +211,7 @@ class ChatBotView(View):
                         {"$set": {"reason": text}}
                     )
                     chatb_collection.update_one(
-                        queryChatId, 
+                        queryChatId,
                         {"$set": {"state": "untethered"}}
                     )
                     msg = "Reported user. You can /match to search again."
