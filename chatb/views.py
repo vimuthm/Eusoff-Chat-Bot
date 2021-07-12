@@ -178,7 +178,7 @@ class ChatBotView(View):
             #     self.send_message(msg, t_id)
             # Handle /register when already registered
             elif text == "/adminleaderboard":
-                chatb_collection.find().sort({"rating": -1}).limit(10)
+                print(chatb_collection.find().sort({"rating": -1}).limit(10))
                 print(chatb_collection)
             elif text == "/register":
                 msg = "You have already been registered, %s." % chat['name']
