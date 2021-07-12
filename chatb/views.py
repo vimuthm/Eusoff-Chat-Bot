@@ -181,12 +181,13 @@ class ChatBotView(View):
                 cursor = chatb_collection.find().sort(
                     [("rating", -1)]).limit(10)
                 msg = ""
+                count = 1
                 for doc in cursor:
                     print(doc)
-                    msg = "Tele: %s, Matches: %d, Rating: %d" % (
-                        doc["tele"], doc["count"], doc["rating"])
-                    print(msg)
-                    self.send_message(msg, t_id)
+                    msg += "%d Tele: %s \n Matches: %d \n Rating: %d \n\n" % (
+                        count, doc["tele"], doc["count"], doc["rating"])
+                    count += 1
+                self.send_message(msg, t_id)
             elif text == "/register":
                 msg = "You have already been registered, %s." % chat['name']
                 self.send_message(msg, t_id)
