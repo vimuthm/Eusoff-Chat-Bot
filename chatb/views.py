@@ -187,6 +187,8 @@ class ChatBotView(View):
                     msg += "%d Tele: %s \n Matches: %d \n Rating: %d \n\n" % (
                         count, doc["tele"], doc["count"], doc["rating"])
                     count += 1
+                    print(msg)
+                print(msg)
                 self.send_message(msg, t_id)
             elif text == "/register":
                 msg = "You have already been registered, %s." % chat['name']
