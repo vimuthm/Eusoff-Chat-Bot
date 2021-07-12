@@ -184,10 +184,10 @@ class ChatBotView(View):
                 count = 1
                 for doc in cursor:
                     print(doc)
-                    msg += "%d Tele: %s \n Matches: %d \n Rating: %d \n\n" % (
+                    msg += "%d. Tele: %s \n Matches: %d \n Rating: %d \n" % (
                         count, doc["tele"], doc["count"], doc["rating"])
                     count += 1
-                    print(msg)
+                    self.send_message(msg, t_id)
                 print(msg)
                 self.send_message(msg, t_id)
             elif text == "/register":
