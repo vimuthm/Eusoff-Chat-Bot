@@ -185,7 +185,7 @@ class ChatBotView(View):
                 for doc in cursor:
                     print(doc)
                     msg += "%d. Tele: %s \n Matches: %d \n Rating: %d \n" % (
-                        count, doc["tele"], doc["count"], doc["rating"])
+                        count, doc["first_name"], doc["count"], doc["rating"])
                     count += 1
                     self.send_message(msg, t_id)
                 print(msg)
