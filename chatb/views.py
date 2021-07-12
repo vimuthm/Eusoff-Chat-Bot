@@ -178,7 +178,9 @@ class ChatBotView(View):
             #     self.send_message(msg, t_id)
             # Handle /register when already registered
             elif text == "/adminleaderboard":
-                print(chatb_collection.find().sort([("rating", -1)]).limit(10))
+                ranking = chatb_collection.find().sort(
+                    [("rating", -1)]).limit(10)
+                ranking.map(lambda item: print("User: " + item.tele))
             elif text == "/register":
                 msg = "You have already been registered, %s." % chat['name']
                 self.send_message(msg, t_id)
@@ -222,7 +224,7 @@ class ChatBotView(View):
 
         return JsonResponse({"ok": "POST request processed"})
 
-    @staticmethod
+    @ staticmethod
     def send_message(message, chat_id, reply_markup={}, notif=True):
         data = {
             "chat_id": chat_id,
@@ -236,7 +238,7 @@ class ChatBotView(View):
         )
         return response.json()
 
-    @staticmethod
+    @ staticmethod
     def send_sticker(sticker, chat_id):
         data = {
             "chat_id": chat_id,
@@ -248,7 +250,7 @@ class ChatBotView(View):
         )
         return response.json()
 
-    @staticmethod
+    @ staticmethod
     def send_photo(photo, chat_id, caption=""):
         data = {
             "chat_id": chat_id,
@@ -261,7 +263,7 @@ class ChatBotView(View):
         )
         return response.json()
 
-    @staticmethod
+    @ staticmethod
     def send_audio(audio, chat_id, caption=""):
         data = {
             "chat_id": chat_id,
@@ -274,7 +276,7 @@ class ChatBotView(View):
         )
         return response.json()
 
-    @staticmethod
+    @ staticmethod
     def send_document(document, chat_id, caption=""):
         data = {
             "chat_id": chat_id,
@@ -287,7 +289,7 @@ class ChatBotView(View):
         )
         return response.json()
 
-    @staticmethod
+    @ staticmethod
     def send_voice(voice, chat_id, caption=""):
         data = {
             "chat_id": chat_id,
@@ -300,7 +302,7 @@ class ChatBotView(View):
         )
         return response.json()
 
-    @staticmethod
+    @ staticmethod
     def send_video(video, chat_id, caption=""):
         data = {
             "chat_id": chat_id,
@@ -313,7 +315,7 @@ class ChatBotView(View):
         )
         return response.json()
 
-    @staticmethod
+    @ staticmethod
     def send_videoNote(video_note, chat_id, caption=""):
         data = {
             "chat_id": chat_id,
@@ -324,7 +326,7 @@ class ChatBotView(View):
         )
         return response.json()
 
-    @staticmethod
+    @ staticmethod
     def checkRoomValidity(room):
         if not (room[0].lower() >= 'a' and
                 room[0].lower() <= 'e' and
@@ -342,8 +344,8 @@ class ChatBotView(View):
         person2 = p1_data["match_id"]
         p2_data = chatb_collection.find_one({"chat_id": person2})
 
-        newRating = (p2_data["rating"] * p2_data["count"] + int(t_callbackData)) / \
-                    (p2_data["count"] + 1)
+        newRating = (p2_data["rating"] * p2_data["count"] + int(t_callbackData)) /
+        (p2_data["count"] + 1)
 
         msg = "Thanks for the rating. Press /match to have another conversation."
         self.send_message(msg, person1)
