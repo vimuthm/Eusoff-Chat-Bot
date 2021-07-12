@@ -179,16 +179,15 @@ class ChatBotView(View):
             # Handle /register when already registered
             elif text == "/adminleaderboard":
                 cursor = chatb_collection.find().sort(
-                    [("rating", 1)]).limit(10)
-                msg = ""
+                    [("rating", -1)]).limit(10)
+                msg = "Leaderboard: \n"
                 count = 1
                 for doc in cursor:
                     print(doc)
                     msg += "%d. Tele: %s \n Matches: %d \n Rating: %d \n" % (
                         count, doc["first_name"], doc["count"], doc["rating"])
                     count += 1
-                    self.send_message(msg, t_id)
-                print(msg)
+                msg.replace("_", "\\_")
                 self.send_message(msg, t_id)
             elif text == "/register":
                 msg = "You have already been registered, %s." % chat['name']
