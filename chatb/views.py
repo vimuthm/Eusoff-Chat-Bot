@@ -179,7 +179,7 @@ class ChatBotView(View):
             # Handle /register when already registered
             elif text == "/adminleaderboard":
                 cursor = chatb_collection.find().sort(
-                    [("rating", -1)]).limit(10)
+                    [("rating", 1)]).limit(10)
                 msg = ""
                 count = 1
                 for doc in cursor:
