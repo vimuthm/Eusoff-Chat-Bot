@@ -183,9 +183,17 @@ class ChatBotView(View):
                 msg = "Leaderboard: \n"
                 count = 1
                 for doc in cursor:
-                    print(doc)
-                    msg += "%d. Tele: %s \n Matches: %d \n Rating: %d \n" % (
+                    msg += "%d. Tele: %s \n Matches: %d \n Rating: %f \n" % (
                         count, doc["tele"], doc["count"], doc["rating"])
+                    count += 1
+                self.send_message(msg.replace("_", "\_"), t_id)
+            elif text == "/adminreports":
+                reports = chatb_reports.find()
+                msg = "Reports: \n"
+                count = 1
+                for doc in reports:
+                    msg += "%d. User: %s \n Reported: %s \n Reason: %s \n" % (
+                        count, doc["submitter_tele"], doc["reported_tele"], doc["reason"])
                     count += 1
                 self.send_message(msg.replace("_", "\_"), t_id)
             elif text == "/register":
