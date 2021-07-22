@@ -203,19 +203,19 @@ class ChatBotView(View):
                         person2 = chatId
 
                         chatb_collection.update_one(
-                            queryChatId(person1),
+                            queryChatId,
                             {"$set": {"match_id": person2}}
                         )
                         chatb_collection.update_one(
-                            queryChatId(person2),
+                            {"chat_id": person2},
                             {"$set": {"match_id": person1}}
                         )
                         chatb_collection.update_one(
-                            queryChatId(person1),
+                            queryChatId,
                             {"$set": {"state": "matched"}}
                         )
                         chatb_collection.update_one(
-                            queryChatId(person2),
+                            {"chat_id": person2},
                             {"$set": {"state": "matched"}}
                         )
 
