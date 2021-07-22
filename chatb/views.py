@@ -36,11 +36,14 @@ startText = "Hi there and\n\n" + \
 
 msg404 = "Aw, Snap! I'm broken and my devs are too tired to fix me :("
 
+supportText = "Please contact @Jaredlim or @VimuthM to report issues or for support"
+
 allowedFormats = set(["sticker", "document", "audio", "photo",
                       "video", "voice", "video_note"])
 
-# https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
+adviceChatIDs = [ 1165718697, 402947214] #Avina 92391842, Vimuth, Jared
 
+# https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
 
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
@@ -76,7 +79,7 @@ class ChatBotView(View):
             # Send introductory message regardless of registered status
             if text == "/start":
                 self.send_message(startText, t_id)
-            # handle users not registered yet
+            # Handle users not registered yet
             elif not chat:
                 if text != "/register":
                     msg = "You don't seem to be registered yet! Use /register"
@@ -184,11 +187,54 @@ class ChatBotView(View):
             elif text == "/register":
                 msg = "You have already been registered, %s." % chat['name']
                 self.send_message(msg, t_id)
+            elif text == "/advice":
+                # Send intro message
+                # Loop available seniors
+                # Get first untethered and match
+                msg = "Searching for a senior to assist you! The normal procedure applies: /end to end the conversation \
+                       and /report to make a report. This chat too will be anonymous."
+                self.send_message(msg, t_id)
+                found = False
+                for chatId in adviceChatIDs:
+                    current_person = chatb_collection.find_one({"chat_id": chatId})
+                    if current_person["state"] == "untethered":
+                        found = True
+                        person1 = t_id
+                        person2 = chatId
+
+                        chatb_collection.update_one(
+                            queryChatId(person1),
+                            {"$set": {"match_id": person2}}
+                        )
+                        chatb_collection.update_one(
+                            queryChatId(person2),
+                            {"$set": {"match_id": person1}}
+                        )
+                        chatb_collection.update_one(
+                            queryChatId(person1),
+                            {"$set": {"state": "matched"}}
+                        )
+                        chatb_collection.update_one(
+                            queryChatId(person2),
+                            {"$set": {"state": "matched"}}
+                        )
+
+                        successMessage = "You have been matched with a senior! In case they aren't online, \
+                            just leave your query (don't /end) and they will get back to you!"
+                        seniorMessage = "Someone's looking for advice :)))"
+                        send_message(successMessage, person1)
+                        send_message(seniorMessage, person2)
+                if not found:
+                    msg = "All seniors are currently busy :( Please check again later!"
+                    self.send_message(msg, t_id)
+            elif text == "/support":
+                self.send_message(supportText, t_id)
             # Send help text
             elif text == "/help":
                 self.send_message(helpText, t_id)
             # Handle /match by changing state to queued
             elif text == "/match":
+                match(repeat=1)
                 chatb_collection.update_one(
                     queryChatId, {"$set": {"state": "queued"}})
             # elif text == "/ai":
@@ -204,6 +250,12 @@ class ChatBotView(View):
                 #     msg = chatwAI(text)
                 # Handle reported reason
                 elif chat['state'] == "report":
+                    report = chatb_reports.find_one(
+                        {
+                            "submitter": t_id,
+                            "reported": chat["match_id"]
+                        }
+                    )
                     chatb_reports.update_one(
                         {
                             "submitter": t_id,
@@ -213,9 +265,14 @@ class ChatBotView(View):
                     )
                     chatb_collection.update_one(
                         queryChatId,
-                        {"$set": {"state": "untethered"}}
+                        {"$set": {"state": "untethered"},
+                         "$unset": {"match_id": ""}}
                     )
                     msg = "Reported user. You can /match to search again."
+
+                    alertMsg = report["submitter_tele"] + "reported" + report["reported_tele"] + "for: " + text
+                    for chatId in adviceChatIDs:
+                        self.send_message(alertMsg, chatId)
                 else:
                     msg = "Unknown command"
                 self.send_message(msg, t_id)
