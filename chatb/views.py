@@ -222,8 +222,8 @@ class ChatBotView(View):
                         successMessage = "You have been matched with a senior! In case they aren't online, \
                             just leave your query (don't /end) and they will get back to you!"
                         seniorMessage = "Someone's looking for advice :)))"
-                        send_message(successMessage, person1)
-                        send_message(seniorMessage, person2)
+                        self.send_message(successMessage, person1)
+                        self.send_message(seniorMessage, person2)
                 if not found:
                     msg = "All seniors are currently busy :( Please check again later!"
                     self.send_message(msg, t_id)
