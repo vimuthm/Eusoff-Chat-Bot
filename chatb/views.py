@@ -202,6 +202,9 @@ class ChatBotView(View):
                         person1 = t_id
                         person2 = chatId
 
+                        if person1 == person2:
+                            continue
+                        
                         chatb_collection.update_one(
                             queryChatId,
                             {"$set": {"match_id": person2}}
@@ -224,6 +227,8 @@ class ChatBotView(View):
                         seniorMessage = "Someone's looking for advice :)))"
                         self.send_message(successMessage, person1)
                         self.send_message(seniorMessage, person2)
+
+                        break
                 if not found:
                     msg = "All seniors are currently busy :( Please check again later!"
                     self.send_message(msg, t_id)
