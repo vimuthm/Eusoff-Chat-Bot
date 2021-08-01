@@ -41,7 +41,7 @@ supportText = "Please contact @Jaredlim or @VimuthM to report issues or for supp
 allowedFormats = set(["sticker", "document", "audio", "photo",
                       "video", "voice", "video_note"])
 
-adviceChatIDs = [ 1165718697, 402947214] #Avina 92391842, Vimuth, Jared
+adviceChatIDs = [92391842] #Avina 92391842, Vimuth, Jared: 1165718697, 402947214
 
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
 
