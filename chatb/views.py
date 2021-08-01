@@ -24,6 +24,7 @@ helpText = "/start : To understand what this bot can do\n" + \
            "/register : To register\n" + \
            "/help : To get a list of bot commands\n" + \
            "/match : To match with another Eusoffian\n" + \
+           "/advice : To get help or ask questions from a senior\n" + \
            "/end : To end a chat\n" + \
            "/report : To report a user (only while matched)\n"
 
@@ -191,8 +192,8 @@ class ChatBotView(View):
                 # Send intro message
                 # Loop available seniors
                 # Get first untethered and match
-                msg = "Searching for a senior to assist you! The normal procedure applies: /end to end the conversation \
-                       and /report to make a report. This chat too will be anonymous."
+                msg = "Searching for a senior to assist you! The normal procedure applies: /end to end the conversation" + \
+                      "and /report to make a report. This chat too will be anonymous."
                 self.send_message(msg, t_id)
                 found = False
                 for chatId in adviceChatIDs:
