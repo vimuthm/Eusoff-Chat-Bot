@@ -31,8 +31,8 @@ helpText = "/start : To understand what this bot can do\n" + \
 
 startText = "Hi there and\n\n" + \
             "           Welcome to the conversEHtions bot!!!\n\n" + \
-            "You can use this bot to match and anonymously chat" + \
-            "with other Eusoffians; to make new connections and" + \
+            "You can use this bot to match and anonymously chat " + \
+            "with other Eusoffians; to make new connections and " + \
             "have fun. At the end, you can rate the conversation.\n\n" + \
             helpText
 
@@ -193,7 +193,7 @@ class ChatBotView(View):
                 # Send intro message
                 # Loop available seniors
                 # Get first untethered and match
-                msg = "Searching for a senior to assist you! The normal procedure applies: /end to end the conversation" + \
+                msg = "Searching for a senior to assist you! The normal procedure applies: /end to end the conversation " + \
                       "and /report to make a report. This chat too will be anonymous."
                 self.send_message(msg, t_id)
                 found = False
