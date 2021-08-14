@@ -26,10 +26,11 @@ helpText = "/start : To understand what this bot can do\n" + \
            "/match : To match with another Eusoffian\n" + \
            "/advice : To get help or ask questions from a senior\n" + \
            "/end : To end a chat\n" + \
-           "/report : To report a user (only while matched)\n"
+           "/report : To report a user (only while matched)\n" + \
+           "/support : To relay an issue to the dev team\n"
 
 startText = "Hi there and\n\n" + \
-            "           Welcome to the Eusoff Chat Bot!!!\n\n" + \
+            "           Welcome to the conversEHtions bot!!!\n\n" + \
             "You can use this bot to match and anonymously chat" + \
             "with other Eusoffians; to make new connections and" + \
             "have fun. At the end, you can rate the conversation.\n\n" + \
@@ -37,7 +38,7 @@ startText = "Hi there and\n\n" + \
 
 msg404 = "Aw, Snap! I'm broken and my devs are too tired to fix me :("
 
-supportText = "Please contact @Jaredlim or @VimuthM to report issues or for support"
+supportText = "Please contact @VimuthM or @Jaredlim to report issues or for support"
 
 allowedFormats = set(["sticker", "document", "audio", "photo",
                       "video", "voice", "video_note"])
