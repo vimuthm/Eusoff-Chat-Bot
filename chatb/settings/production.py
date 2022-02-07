@@ -6,7 +6,7 @@ from chatb.settings.base import *  # noqa
 
 DEBUG = True
 
-ALLOWED_HOSTS.append("jared-chat-bot.herokuapp.com")
+ALLOWED_HOSTS.append("chat-bot-jared.herokuapp.com")
 
 mongodb_user = os.getenv("MONGO_USER")
 mongodb_password = os.getenv("MONGO_PASSWORD")
