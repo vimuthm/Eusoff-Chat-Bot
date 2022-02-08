@@ -88,15 +88,35 @@ def match(t_id):
     #     messageDict = {}
     # print("welp")
 
-    chatb_collection.update_one(queryChatId(t_id), {"$set": {"state": "queued"}})
+    chatb_collection.update_one(queryChatId(
+        t_id), {"$set": {"state": "queued"}})
     waitMessage = "Looking for a match..."
     send_message(waitMessage, t_id)
 
-    match = chatb_collection.find_one({
-        "$and": [
-            {"state": "queued"},
-            {"chat_id": {"$ne": t_id}}
-        ]})
+    pref = chatb_collection.find(
+        {"chat_id": t_id})[0]["preference"]
+
+    if pref == 0:
+        match = chatb_collection.find_one({
+            "$and": [
+                {"state": "queued"},
+                {"chat_id": {"$ne": t_id}},
+                {"isMale": True}
+            ]})
+    elif pref == 1:
+        match = chatb_collection.find_one({
+            "$and": [
+                {"state": "queued"},
+                {"chat_id": {"$ne": t_id}},
+                {"isMale": False}
+            ]})
+    else:
+        match = chatb_collection.find_one({
+            "$and": [
+                {"state": "queued"},
+                {"chat_id": {"$ne": t_id}}
+            ]})
+
     print(match)
     if (match):
         match_id = match["chat_id"]
@@ -110,7 +130,7 @@ def match(t_id):
             queryChatId(match_id),
             {"$set": {"match_id": t_id,
                       "state": "matched"}
-            }
+             }
         )
 
         time_zone = pytz.timezone('Asia/Singapore')
@@ -119,9 +139,9 @@ def match(t_id):
         datetime_str = date_sg.strftime("%m/%d/%Y, %H:%M:%S")
 
         name1 = chatb_collection.find(
-                {"chat_id": t_id})[0]["tele"]
+            {"chat_id": t_id})[0]["tele"]
         name2 = chatb_collection.find(
-                {"chat_id": match_id})[0]["tele"]
+            {"chat_id": match_id})[0]["tele"]
 
         history = {
             "person1": t_id,
@@ -137,7 +157,6 @@ def match(t_id):
         send_message(successMessage, t_id)
         send_message(successMessage, match_id)
 
-    
 
 # @background(schedule=0)
 # def train():
@@ -156,8 +175,8 @@ def match(t_id):
 #         msg = "F I'm dumb"
 #     return msg
 
-def send_message(message, chat_id, reply_markup = '', notif = True):
-    data={
+def send_message(message, chat_id, reply_markup='', notif=True):
+    data = {
         "chat_id": chat_id,
         "text": message,
         "parse_mode": "Markdown",
@@ -165,13 +184,13 @@ def send_message(message, chat_id, reply_markup = '', notif = True):
         "disable_notification": notif
     }
     response = requests.post(
-        f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json = (data)
+        f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json=(data)
     )
     return response.json()
 
 
-def update_message(message, chat_id, message_id, reply_markup = ''):
-    data={
+def update_message(message, chat_id, message_id, reply_markup=''):
+    data = {
         "chat_id": chat_id,
         "message_id": message_id,
         "text": message,
@@ -179,7 +198,7 @@ def update_message(message, chat_id, message_id, reply_markup = ''):
         "reply_markup": reply_markup
     }
     response = requests.post(
-        f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/editMessageText", data = data
+        f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/editMessageText", data=data
     )
 
 
