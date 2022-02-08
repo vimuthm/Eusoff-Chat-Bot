@@ -165,6 +165,38 @@ class ChatBotView(View):
             elif chat['state'] == "queued":
                 msg = "Please wait, searching for a match! Press /end to stop searching"
                 self.send_message(msg, t_id)
+            # Handle register inputs
+            elif chat['state'] == "register":
+                msg = self.handleRegister(chatb_collection, t_id, text)
+                self.send_message(msg, t_id)
+            # elif chat['state'] == "ai":
+            #     msg = chatwAI(text)
+            # Handle reported reason
+            elif chat['state'] == "report":
+                report = chatb_reports.find_one(
+                    {
+                        "submitter": t_id,
+                        "reported": chat["match_id"]
+                    }
+                )
+                chatb_reports.update_one(
+                    {
+                        "submitter": t_id,
+                        "reported": chat["match_id"]
+                    },
+                    {"$set": {"reason": text}}
+                )
+                chatb_collection.update_one(
+                    queryChatId,
+                    {"$set": {"state": "untethered"},
+                        "$unset": {"match_id": ""}}
+                )
+                msg = "Reported user. You can /match to search again."
+                self.send_message(msg, t_id)
+
+                alertMsg = report["submitter_tele"] + "reported" + report["reported_tele"] + "for: " + text
+                for chatId in adviceChatIDs:
+                    self.send_message(alertMsg, chatId)
             elif text == "/dontrunthisoryouwillbefired":
                 msg = "Ahh tried to pull a sneaky one huh... \n...knew yall cant be trusted 😩✋"
                 self.send_message(msg, t_id)
@@ -250,38 +282,7 @@ class ChatBotView(View):
             #     self.send_message("Hi, I'm Herbert!!", t_id)
             # Free user input except when queued/matched
             else:
-                # Handle register inputs
-                if chat['state'] == "register":
-                    msg = self.handleRegister(chatb_collection, t_id, text)
-                # elif chat['state'] == "ai":
-                #     msg = chatwAI(text)
-                # Handle reported reason
-                elif chat['state'] == "report":
-                    report = chatb_reports.find_one(
-                        {
-                            "submitter": t_id,
-                            "reported": chat["match_id"]
-                        }
-                    )
-                    chatb_reports.update_one(
-                        {
-                            "submitter": t_id,
-                            "reported": chat["match_id"]
-                        },
-                        {"$set": {"reason": text}}
-                    )
-                    chatb_collection.update_one(
-                        queryChatId,
-                        {"$set": {"state": "untethered"},
-                         "$unset": {"match_id": ""}}
-                    )
-                    msg = "Reported user. You can /match to search again."
-
-                    alertMsg = report["submitter_tele"] + "reported" + report["reported_tele"] + "for: " + text
-                    for chatId in adviceChatIDs:
-                        self.send_message(alertMsg, chatId)
-                else:
-                    msg = "Unknown command"
+                msg = "Unknown command"
                 self.send_message(msg, t_id)
         else:
             print("Failed: Neither callback nor message")
