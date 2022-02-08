@@ -86,7 +86,11 @@ def match(t_id):
     #     messageDict = {}
     # print("welp")
 
-    match = chatb_collection.findOne({ $and: [{"state": "queued"}, {$not: {"chat_id": t_id}}]})
+    match = chatb_collection.findOne({ 
+        "$and:" [
+            {"state": "queued"}, 
+            {"$not": {"chat_id": t_id}}
+        ]})
     print(match)
 
     # for i in range(0, inQueue - 1, 2):
