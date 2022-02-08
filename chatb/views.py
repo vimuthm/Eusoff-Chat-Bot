@@ -38,13 +38,13 @@ startText = "Hi there \n\n" + \
 
 msg404 = "Aw, Snap! I'm broken and my devs are too tired to fix me :("
 
-supportText = "Please contact @VimuthM or @Jaredlim to report issues or for support"
+supportText = "Please fill the form at https://forms.gle/qeEfnpVncJJ34t1Y9 , someone will get back to you!"
 
 allowedFormats = set(["sticker", "document", "audio", "photo",
                       "video", "voice", "video_note"])
 
-# Avina 92391842, Vimuth, Jared: 1165718697, 402947214
-adviceChatIDs = [92391842]
+# Avina 92391842, Vimuth, Jared: ,
+adviceChatIDs = [92391842, 1165718697, 402947214]
 
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
 
@@ -114,6 +114,12 @@ class ChatBotView(View):
             # Handle free user input (anon chat) and /report when matched
             elif chat['state'] == "matched":
                 if text == "/report":
+
+                    time_zone = pytz.timezone('Asia/Singapore')
+                    date = datetime.datetime.now()
+                    date_sg = time_zone.localize(date)
+                    datetime_str = date_sg.strftime("%m/%d/%Y, %H:%M:%S")
+
                     reported = chatb_collection.find_one(
                         {"chat_id": chat["match_id"]})
                     report = {
@@ -121,7 +127,8 @@ class ChatBotView(View):
                         "submitter_tele": chat["tele"],
                         "reported": chat["match_id"],
                         "reported_tele": reported["tele"],
-                        "state": "report"
+                        "state": "report",
+                        "time": datetime_str
                     }
                     chatb_reports.insert_one(report)
                     chatb_collection.update_one(
