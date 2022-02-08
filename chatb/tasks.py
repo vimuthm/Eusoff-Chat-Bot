@@ -3,11 +3,12 @@
 # from chatterbot.trainers import ChatterBotCorpusTrainer
 
 from multiprocessing.connection import wait
-from .models import chatb_collection
+from .models import chatb_collection, chatb_history
 
 import requests
 import os
 import datetime
+import pytz
 
 TELEGRAM_URL = "https://api.telegram.org/bot"
 TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
@@ -86,6 +87,7 @@ def match(t_id):
     # else:
     #     messageDict = {}
     # print("welp")
+
     chatb_collection.update_one(queryChatId(t_id), {"$set": {"state": "queued"}})
     waitMessage = "Looking for a Eusoffian..."
     send_message(waitMessage, t_id)
@@ -110,6 +112,27 @@ def match(t_id):
                       "state": "matched"}
             }
         )
+
+        time_zone = pytz.timezone('Asia/Singapore')
+        date = datetime.datetime.now()
+        date_sg = time_zone.localize(date)
+        datetime_str = date_sg.strftime("%m/%d/%Y, %H:%M:%S")
+
+        name1 = chatb_collection.find(
+                {"chat_id": t_id})[0]["tele"]
+        name2 = chatb_collection.find(
+                {"chat_id": match_id})[0]["tele"]
+
+        history = {
+            "person1": t_id,
+            "name1": name1,
+            "person2": match_id,
+            "name2": name2,
+            "time": datetime_str
+        }
+
+        chatb_history.insert_one(history)
+
         successMessage = "You have been matched! Have fun!"
         send_message(successMessage, t_id)
         send_message(successMessage, match_id)
