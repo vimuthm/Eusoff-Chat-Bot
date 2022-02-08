@@ -52,10 +52,10 @@ class ChatBotView(View):
         t_data = json.loads(request.body)
 
         # Handle rating feedback
-        if "callback_query" in t_data:
-            self.handleRating(t_data)
+        # if "callback_query" in t_data:
+        #     self.handleRating(t_data)
         # Handle all user input
-        elif "message" in t_data:
+        if "message" in t_data:
             t_message = t_data["message"]
             t_chat = t_message["chat"]
             t_message_id = t_message["message_id"]
@@ -399,36 +399,36 @@ class ChatBotView(View):
                 int(room[1]) <= 4):
             raise Exception('Invalid room!')
 
-    def handleRating(self, t_data):
-        t_callbackQuery = t_data["callback_query"]
-        t_id = t_callbackQuery["from"]["id"]
-        t_callbackData = t_callbackQuery["data"]
+    # def handleRating(self, t_data):
+    #     t_callbackQuery = t_data["callback_query"]
+    #     t_id = t_callbackQuery["from"]["id"]
+    #     t_callbackData = t_callbackQuery["data"]
 
-        person1 = t_id
-        p1_data = chatb_collection.find_one({"chat_id": person1})
-        person2 = p1_data["match_id"]
-        p2_data = chatb_collection.find_one({"chat_id": person2})
+    #     person1 = t_id
+    #     p1_data = chatb_collection.find_one({"chat_id": person1})
+    #     person2 = p1_data["match_id"]
+    #     p2_data = chatb_collection.find_one({"chat_id": person2})
 
-        newRating = (p2_data["rating"] * p2_data["count"] +
-                     int(t_callbackData)) / (p2_data["count"] + 1)
+    #     newRating = (p2_data["rating"] * p2_data["count"] +
+    #                  int(t_callbackData)) / (p2_data["count"] + 1)
 
-        msg = "Thanks for the rating. Press /match to have another conversation."
-        self.send_message(msg, person1)
+    #     msg = "Thanks for the rating. Press /match to have another conversation."
+    #     self.send_message(msg, person1)
 
-        chatb_collection.update_one(
-            {"chat_id": person1},
-            {
-                "$unset": {"match_id": ""}
-            }
-        )
+    #     chatb_collection.update_one(
+    #         {"chat_id": person1},
+    #         {
+    #             "$unset": {"match_id": ""}
+    #         }
+    #     )
 
-        chatb_collection.update_one(
-            {"chat_id": person2},
-            {
-                "$set": {"rating": newRating},
-                "$inc": {"count": 1}
-            }
-        )
+    #     chatb_collection.update_one(
+    #         {"chat_id": person2},
+    #         {
+    #             "$set": {"rating": newRating},
+    #             "$inc": {"count": 1}
+    #         }
+    #     )
 
     def handleRegister(self, chatb_collection, t_id, text):
         try:
@@ -456,30 +456,32 @@ class ChatBotView(View):
             person1 = t_id
             person2 = chatb_collection.find(
                 {"chat_id": person1})[0]["match_id"]
-            keyboard = {
-                "inline_keyboard": [
-                    [
-                        {"text": "1", "callback_data": 1},
-                        {"text": "2", "callback_data": 2},
-                        {"text": "3", "callback_data": 3},
-                        {"text": "4", "callback_data": 4},
-                        {"text": "5", "callback_data": 5}
-                    ]
-                ]}
+            # keyboard = {
+            #     "inline_keyboard": [
+            #         [
+            #             {"text": "1", "callback_data": 1},
+            #             {"text": "2", "callback_data": 2},
+            #             {"text": "3", "callback_data": 3},
+            #             {"text": "4", "callback_data": 4},
+            #             {"text": "5", "callback_data": 5}
+            #         ]
+            #     ]}
 
             chatb_collection.update_one(
                 {"chat_id": person1},
-                {"$set": {"state": "untethered"}}
+                {"$set": {"state": "untethered"},
+                "$unset": {"match_id": ""}}
             )
             chatb_collection.update_one(
                 {"chat_id": person2},
-                {"$set": {"state": "untethered"}}
+                {"$set": {"state": "untethered"},
+                "$unset": {"match_id": ""}}
             )
 
-            msg1 = "Your conversation has ended. Please rate your conversation."
-            msg2 = "Your partner has ended the conversation. Please rate your conversation."
-            self.send_message(msg1, person1, reply_markup=keyboard)
-            self.send_message(msg2, person2, reply_markup=keyboard)
+            msg1 = "Your conversation has ended. "
+            msg2 = "Your partner has ended the conversation. "
+            self.send_message(msg1, person1) #reply_markup=keyboard
+            self.send_message(msg2, person2) #reply_markup=keyboard
 
         elif chat['state'] == "queued":
             chatb_collection.update_one(
@@ -488,13 +490,13 @@ class ChatBotView(View):
             )
             msg = "Stopped searching :("
             self.send_message(msg, t_id)
-        elif chat['state'] == "ai":
-            chatb_collection.update_one(
-                {"chat_id": t_id},
-                {"$set": {"state": "untethered"}}
-            )
-            msg = "Herbert says bye :("
-            self.send_message(msg, t_id)
+        # elif chat['state'] == "ai":
+        #     chatb_collection.update_one(
+        #         {"chat_id": t_id},
+        #         {"$set": {"state": "untethered"}}
+        #     )
+        #     msg = "Herbert says bye :("
+        #     self.send_message(msg, t_id)
         else:
             msg = "This command is only applicable when you're matched or in queue."
             self.send_message(msg, t_id)
