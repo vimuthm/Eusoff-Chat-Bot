@@ -91,7 +91,7 @@ def match(t_id):
     send_message(waitMessage, t_id)
 
     match = chatb_collection.findOne({
-        "$and:" [
+        "$and": [
             {"state": "queued"},
             {"$not": {"chat_id": t_id}}
         ]})
