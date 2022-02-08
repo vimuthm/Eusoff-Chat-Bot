@@ -86,7 +86,7 @@ def match(t_id):
     # else:
     #     messageDict = {}
     # print("welp")
-    chatb_collection.update_one(queryChatId, {"$set": {"state": "queued"}})
+    chatb_collection.update_one(queryChatId(t_id), {"$set": {"state": "queued"}})
     waitMessage = "Looking for a Eusoffian..."
     send_message(waitMessage, t_id)
 
