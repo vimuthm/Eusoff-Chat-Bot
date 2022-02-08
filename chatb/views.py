@@ -23,6 +23,7 @@ TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
 helpText = "/start : To understand what this bot can do\n" + \
            "/register : To register\n" + \
            "/help : To get a list of bot commands\n" + \
+           "/preference : To set a preference for your match's gender (biological sex assigned at birth if i may)\n" + \
            "/match : To match with another person\n" + \
            "/end : To end a chat\n" + \
            "/report : To report a user (only while matched)\n" + \
@@ -42,19 +43,22 @@ supportText = "Please contact @VimuthM or @Jaredlim to report issues or for supp
 allowedFormats = set(["sticker", "document", "audio", "photo",
                       "video", "voice", "video_note"])
 
-adviceChatIDs = [92391842] #Avina 92391842, Vimuth, Jared: 1165718697, 402947214
+# Avina 92391842, Vimuth, Jared: 1165718697, 402947214
+adviceChatIDs = [92391842]
 
 # https://api.telegram.org/bot<token>/setWebhook?url=<url>/webhooks/tutorial/
+
 
 class ChatBotView(View):
     def post(self, request, *args, **kwargs):
         t_data = json.loads(request.body)
 
         # Handle rating feedback
-        # if "callback_query" in t_data:
-        #     self.handleRating(t_data)
+        if "callback_query" in t_data:
+            self.handlePreference(t_data)
+            # self.handleRating(t_data)
         # Handle all user input
-        if "message" in t_data:
+        elif "message" in t_data:
             t_message = t_data["message"]
             t_chat = t_message["chat"]
             t_message_id = t_message["message_id"]
@@ -192,7 +196,8 @@ class ChatBotView(View):
                 msg = "Reported user. You can /match to search again."
                 self.send_message(msg, t_id)
 
-                alertMsg = report["submitter_tele"] + "reported" + report["reported_tele"] + "for: " + text
+                alertMsg = report["submitter_tele"] + "reported" + \
+                    report["reported_tele"] + "for: " + text
                 for chatId in adviceChatIDs:
                     self.send_message(alertMsg, chatId)
             elif text == "/dontrunthisoryouwillbefired":
@@ -211,7 +216,7 @@ class ChatBotView(View):
             #     print("Added to queue")
             #     msg = "I really really hope youre either Vimuth or Jared 🤞"
             #     self.send_message(msg, t_id)
-           
+
             # elif text == "/adminleaderboard":
             #     self.handleLeaderboard(chatb_collection, t_id)
             elif text == "/adminreports":
@@ -237,7 +242,7 @@ class ChatBotView(View):
 
             #             if person1 == person2:
             #                 continue
-                        
+
             #             chatb_collection.update_one(
             #                 queryChatId,
             #                 {"$set": {"match_id": person2}}
@@ -270,10 +275,12 @@ class ChatBotView(View):
             # Send help text
             elif text == "/help":
                 self.send_message(helpText, t_id)
+            elif text == "/preference":
+                self.sendPreferenceKeyboard(t_id)
             # Handle /match by changing state to queued
             elif text == "/match":
                 match(t_id)
-                
+
             # elif text == "/ai":
             #     chatb_collection.update_one(
             #         queryChatId, {"$set": {"state": "ai"}})
@@ -397,6 +404,34 @@ class ChatBotView(View):
                 int(room[1]) <= 4):
             raise Exception('Invalid room!')
 
+    @ staticmethod
+    def isMale(room):
+        return int(room[1]) == 1 or int(room[1]) == 4
+
+    def sendPreferenceKeyboard(self, t_id):
+        keyboard = {
+            "inline_keyboard": [
+                [
+                    {"text": "Male", "callback_data": 0},
+                    {"text": "Female", "callback_data": 1},
+                    {"text": "Any", "callback_data": 2}
+                ]
+            ]}
+
+        self.send_message("Preference?", t_id, reply_markup=keyboard)
+
+    def handlePreference(self, t_data):
+        t_callbackQuery = t_data["callback_query"]
+        t_id = t_callbackQuery["from"]["id"]
+        t_callbackData = t_callbackQuery["data"]
+
+        chatb_collection.update_one(
+            {"chat_id": t_id},
+            {"$set": {"preference": int(t_callbackData)}}
+        )
+
+        self.send_message("Preference set!", t_id)
+
     # def handleRating(self, t_data):
     #     t_callbackQuery = t_data["callback_query"]
     #     t_id = t_callbackQuery["from"]["id"]
@@ -428,6 +463,7 @@ class ChatBotView(View):
     #         }
     #     )
 
+    # 0 -> Male 1 -> Female 2 -> Any
     def handleRegister(self, chatb_collection, t_id, text):
         try:
             name, room = text.split(' ')
@@ -440,7 +476,9 @@ class ChatBotView(View):
                         "name": name,
                         "room": room,
                         "count": 0,
-                        "rating": 0
+                        "rating": 0,
+                        "isMale": self.isMale(room),
+                        "preference": 2
                     }
                 }
             )
@@ -468,18 +506,18 @@ class ChatBotView(View):
             chatb_collection.update_one(
                 {"chat_id": person1},
                 {"$set": {"state": "untethered"},
-                "$unset": {"match_id": ""}}
+                 "$unset": {"match_id": ""}}
             )
             chatb_collection.update_one(
                 {"chat_id": person2},
                 {"$set": {"state": "untethered"},
-                "$unset": {"match_id": ""}}
+                 "$unset": {"match_id": ""}}
             )
 
             msg1 = "Your conversation has ended. "
             msg2 = "Your partner has ended the conversation. "
-            self.send_message(msg1, person1) #reply_markup=keyboard
-            self.send_message(msg2, person2) #reply_markup=keyboard
+            self.send_message(msg1, person1)  # reply_markup=keyboard
+            self.send_message(msg2, person2)  # reply_markup=keyboard
 
         elif chat['state'] == "queued":
             chatb_collection.update_one(
