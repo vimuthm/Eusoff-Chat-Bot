@@ -96,7 +96,7 @@ def match(t_id):
             {"chat_id": {"$ne": t_id}}
         ]})
     print(match)
-    if (not match):
+    if (match):
         match_id = match["chat_id"]
         chatb_collection.update_one(
             queryChatId(t_id),
