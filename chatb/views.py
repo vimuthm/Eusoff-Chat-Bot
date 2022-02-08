@@ -201,12 +201,12 @@ class ChatBotView(View):
                 msg = "Ahh tried to pull a sneaky one huh... \n...knew yall cant be trusted 😩✋"
                 self.send_message(msg, t_id)
             # Start the matching background process
-            elif text == "/dontrunthisoryouwillbefiredadmin":
-                print("Going to add to queue")
-                match(repeat=1)
-                print("Added to queue")
-                msg = "I really really hope youre either Vimuth or Jared 🤞"
-                self.send_message(msg, t_id)
+            # elif text == "/dontrunthisoryouwillbefiredadmin":
+            #     print("Going to add to queue")
+            #     match(repeat=1)
+            #     print("Added to queue")
+            #     msg = "I really really hope youre either Vimuth or Jared 🤞"
+            #     self.send_message(msg, t_id)
             # elif text == "/dontrunthisoryouwillbefiredtrain":
             #     print("Going to add to queue")
             #     train()
@@ -274,9 +274,8 @@ class ChatBotView(View):
                 self.send_message(helpText, t_id)
             # Handle /match by changing state to queued
             elif text == "/match":
-                match(repeat=1)
-                chatb_collection.update_one(
-                    queryChatId, {"$set": {"state": "queued"}})
+                match(t_id)
+                
             # elif text == "/ai":
             #     chatb_collection.update_one(
             #         queryChatId, {"$set": {"state": "ai"}})

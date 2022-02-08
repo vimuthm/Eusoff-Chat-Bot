@@ -2,6 +2,7 @@
 # from chatterbot import ChatBot
 # from chatterbot.trainers import ChatterBotCorpusTrainer
 
+from multiprocessing.connection import wait
 from .models import chatb_collection
 
 import requests
@@ -85,39 +86,35 @@ def match(t_id):
     # else:
     #     messageDict = {}
     # print("welp")
+    chatb_collection.update_one(queryChatId, {"$set": {"state": "queued"}})
+    waitMessage = "Looking for a Eusoffian..."
+    send_message(waitMessage, t_id)
 
-    match = chatb_collection.findOne({ 
+    match = chatb_collection.findOne({
         "$and:" [
-            {"state": "queued"}, 
+            {"state": "queued"},
             {"$not": {"chat_id": t_id}}
         ]})
     print(match)
+    if (not match):
+        match_id = match["chat_id"]
+        chatb_collection.update_one(
+            queryChatId(t_id),
+            {"$set": {"match_id": match_id,
+                      "state": "matched"}
+             }
+        )
+        chatb_collection.update_one(
+            queryChatId(match_id),
+            {"$set": {"match_id": t_id,
+                      "state": "matched"}
+            }
+        )
+        successMessage = "You have been matched! Have fun!"
+        send_message(successMessage, t_id)
+        send_message(successMessage, match_id)
 
-    # for i in range(0, inQueue - 1, 2):
-    #     person1 = personsInQueue[i]["chat_id"]
-    #     person2 = personsInQueue[i + 1]["chat_id"]
-
-    #     chatb_collection.update_one(
-    #         queryChatId(person1),
-    #         {"$set": {"match_id": person2}}
-    #     )
-    #     chatb_collection.update_one(
-    #         queryChatId(person2),
-    #         {"$set": {"match_id": person1}}
-    #     )
-    #     chatb_collection.update_one(
-    #         queryChatId(person1),
-    #         {"$set": {"state": "matched"}}
-    #     )
-    #     chatb_collection.update_one(
-    #         queryChatId(person2),
-    #         {"$set": {"state": "matched"}}
-    #     )
-
-    #     successMessage = "You have been matched! Have fun!"
-    #     send_message(successMessage, person1)
-    #     send_message(successMessage, person2)
-
+    
 
 # @background(schedule=0)
 # def train():
@@ -136,8 +133,8 @@ def match(t_id):
 #         msg = "F I'm dumb"
 #     return msg
 
-def send_message(message, chat_id, reply_markup='', notif=True):
-    data = {
+def send_message(message, chat_id, reply_markup = '', notif = True):
+    data={
         "chat_id": chat_id,
         "text": message,
         "parse_mode": "Markdown",
@@ -145,13 +142,13 @@ def send_message(message, chat_id, reply_markup='', notif=True):
         "disable_notification": notif
     }
     response = requests.post(
-        f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json=(data)
+        f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/sendMessage", json = (data)
     )
     return response.json()
 
 
-def update_message(message, chat_id, message_id, reply_markup=''):
-    data = {
+def update_message(message, chat_id, message_id, reply_markup = ''):
+    data={
         "chat_id": chat_id,
         "message_id": message_id,
         "text": message,
@@ -159,7 +156,7 @@ def update_message(message, chat_id, message_id, reply_markup=''):
         "reply_markup": reply_markup
     }
     response = requests.post(
-        f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/editMessageText", data=data
+        f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/editMessageText", data = data
     )
 
 
