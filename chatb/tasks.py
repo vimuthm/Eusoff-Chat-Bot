@@ -93,7 +93,7 @@ def match(t_id):
     match = chatb_collection.find_one({
         "$and": [
             {"state": "queued"},
-            {"$not": {"chat_id": t_id}}
+            {"chat_id": {"$ne": t_id}}
         ]})
     print(match)
     if (not match):
