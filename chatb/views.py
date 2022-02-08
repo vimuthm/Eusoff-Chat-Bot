@@ -23,16 +23,15 @@ TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
 helpText = "/start : To understand what this bot can do\n" + \
            "/register : To register\n" + \
            "/help : To get a list of bot commands\n" + \
-           "/match : To match with another Eusoffian\n" + \
-           "/advice : To get help or ask questions from a senior\n" + \
+           "/match : To match with another person\n" + \
            "/end : To end a chat\n" + \
            "/report : To report a user (only while matched)\n" + \
            "/support : To relay an issue to the dev team\n"
 
-startText = "Hi there and\n\n" + \
+startText = "Hi there \n\n" + \
             "           Welcome to the conversEHtions bot!!!\n\n" + \
             "You can use this bot to match and anonymously chat " + \
-            "with other Eusoffians; to make new connections and " + \
+            "with other pEHple; to make new connections and " + \
             "have fun. At the end, you can rate the conversation.\n\n" + \
             helpText
 
@@ -88,8 +87,7 @@ class ChatBotView(View):
                     self.send_message(msg, t_id)
                 else:
                     msg = "Please enter your name and room. Ex: John A101"
-                    reply_markup = {"force_reply": True,
-                                    "input_field_placeholder": "John A101"}
+                    reply_markup = {"force_reply": True}
                     self.send_message(msg, t_id, reply_markup=reply_markup)
                     fromUser = t_message["from"]
                     tele = fromUser["username"] \
@@ -222,51 +220,51 @@ class ChatBotView(View):
             elif text == "/register":
                 msg = "You have already been registered, %s." % chat['name']
                 self.send_message(msg, t_id)
-            elif text == "/advice":
-                # Send intro message
-                # Loop available seniors
-                # Get first untethered and match
-                msg = "Searching for a senior to assist you! The normal procedure applies: /end to end the conversation " + \
-                      "and /report to make a report. This chat too will be anonymous."
-                self.send_message(msg, t_id)
-                found = False
-                for chatId in adviceChatIDs:
-                    current_person = chatb_collection.find_one({"chat_id": chatId})
-                    if current_person["state"] == "untethered":
-                        found = True
-                        person1 = t_id
-                        person2 = chatId
+            # elif text == "/advice":
+            #     # Send intro message
+            #     # Loop available seniors
+            #     # Get first untethered and match
+            #     msg = "Searching for a senior to assist you! The normal procedure applies: /end to end the conversation " + \
+            #           "and /report to make a report. This chat too will be anonymous."
+            #     self.send_message(msg, t_id)
+            #     found = False
+            #     for chatId in adviceChatIDs:
+            #         current_person = chatb_collection.find_one({"chat_id": chatId})
+            #         if current_person["state"] == "untethered":
+            #             found = True
+            #             person1 = t_id
+            #             person2 = chatId
 
-                        if person1 == person2:
-                            continue
+            #             if person1 == person2:
+            #                 continue
                         
-                        chatb_collection.update_one(
-                            queryChatId,
-                            {"$set": {"match_id": person2}}
-                        )
-                        chatb_collection.update_one(
-                            {"chat_id": person2},
-                            {"$set": {"match_id": person1}}
-                        )
-                        chatb_collection.update_one(
-                            queryChatId,
-                            {"$set": {"state": "matched"}}
-                        )
-                        chatb_collection.update_one(
-                            {"chat_id": person2},
-                            {"$set": {"state": "matched"}}
-                        )
+            #             chatb_collection.update_one(
+            #                 queryChatId,
+            #                 {"$set": {"match_id": person2}}
+            #             )
+            #             chatb_collection.update_one(
+            #                 {"chat_id": person2},
+            #                 {"$set": {"match_id": person1}}
+            #             )
+            #             chatb_collection.update_one(
+            #                 queryChatId,
+            #                 {"$set": {"state": "matched"}}
+            #             )
+            #             chatb_collection.update_one(
+            #                 {"chat_id": person2},
+            #                 {"$set": {"state": "matched"}}
+            #             )
 
-                        successMessage = "You have been matched with a senior! In case they aren't online, \
-                            just leave your query (don't /end) and they will get back to you!"
-                        seniorMessage = "Someone's looking for advice :)))"
-                        self.send_message(successMessage, person1)
-                        self.send_message(seniorMessage, person2)
+            #             successMessage = "You have been matched with a senior! In case they aren't online, \
+            #                 just leave your query (don't /end) and they will get back to you!"
+            #             seniorMessage = "Someone's looking for advice :)))"
+            #             self.send_message(successMessage, person1)
+            #             self.send_message(seniorMessage, person2)
 
-                        break
-                if not found:
-                    msg = "All seniors are currently busy :( Please check again later!"
-                    self.send_message(msg, t_id)
+            #             break
+            #     if not found:
+            #         msg = "All seniors are currently busy :( Please check again later!"
+            #         self.send_message(msg, t_id)
             elif text == "/support":
                 self.send_message(supportText, t_id)
             # Send help text

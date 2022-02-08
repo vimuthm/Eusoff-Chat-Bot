@@ -14,7 +14,7 @@ TELEGRAM_URL = "https://api.telegram.org/bot"
 TUTORIAL_BOT_TOKEN = os.getenv("TUTORIAL_BOT_TOKEN", "error_token")
 
 count = 0
-waitMessage = "Looking for another Eusoffian."
+waitMessage = "Looking for another match."
 messageDict = {}
 
 # chatbot = ChatBot(
@@ -89,7 +89,7 @@ def match(t_id):
     # print("welp")
 
     chatb_collection.update_one(queryChatId(t_id), {"$set": {"state": "queued"}})
-    waitMessage = "Looking for a Eusoffian..."
+    waitMessage = "Looking for a match..."
     send_message(waitMessage, t_id)
 
     match = chatb_collection.find_one({
