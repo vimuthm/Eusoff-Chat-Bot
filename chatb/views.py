@@ -213,11 +213,12 @@ class ChatBotView(View):
             #     print("Added to queue")
             #     msg = "I really really hope youre either Vimuth or Jared 🤞"
             #     self.send_message(msg, t_id)
-            # Handle /register when already registered
-            elif text == "/adminleaderboard":
-                self.handleLeaderboard(chatb_collection, t_id)
+           
+            # elif text == "/adminleaderboard":
+            #     self.handleLeaderboard(chatb_collection, t_id)
             elif text == "/adminreports":
                 self.handleReports(chatb_reports, t_id)
+            # Handle /register when already registered
             elif text == "/register":
                 msg = "You have already been registered, %s." % chat['name']
                 self.send_message(msg, t_id)
@@ -499,16 +500,16 @@ class ChatBotView(View):
             msg = "This command is only applicable when you're matched or in queue."
             self.send_message(msg, t_id)
 
-    def handleLeaderboard(self, chatb_collection, t_id):
-        cursor = chatb_collection.find().sort(
-            [("rating", -1)]).limit(10)
-        msg = "Leaderboard: \n"
-        count = 1
-        for doc in cursor:
-            msg += "%d. Tele: %s \n Matches: %d \n Rating: %f \n" % (
-                count, doc["tele"], doc["count"], doc["rating"])
-            count += 1
-        self.send_message(msg.replace("_", "\_"), t_id)
+    # def handleLeaderboard(self, chatb_collection, t_id):
+    #     cursor = chatb_collection.find().sort(
+    #         [("rating", -1)]).limit(10)
+    #     msg = "Leaderboard: \n"
+    #     count = 1
+    #     for doc in cursor:
+    #         msg += "%d. Tele: %s \n Matches: %d \n Rating: %f \n" % (
+    #             count, doc["tele"], doc["count"], doc["rating"])
+    #         count += 1
+    #     self.send_message(msg.replace("_", "\_"), t_id)
 
     def handleReports(self, chatb_reports, t_id):
         reports = chatb_reports.find()

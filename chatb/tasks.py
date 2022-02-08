@@ -1,4 +1,4 @@
-from background_task import background
+# from background_task import background
 # from chatterbot import ChatBot
 # from chatterbot.trainers import ChatterBotCorpusTrainer
 
@@ -23,70 +23,101 @@ messageDict = {}
 #         ]
 #     )
 
-@background(schedule=0)
-def match():
-    inQueue = chatb_collection.count_documents({"state": "queued"})
-    personsInQueue = chatb_collection.find({"state": "queued"})
+# @background(schedule=0)
 
-    for i in range(0, inQueue - 1, 2):
-        person1 = personsInQueue[i]["chat_id"]
-        person2 = personsInQueue[i + 1]["chat_id"]
 
-        chatb_collection.update_one(
-            queryChatId(person1),
-            {"$set": {"match_id": person2}}
-        )
-        chatb_collection.update_one(
-            queryChatId(person2),
-            {"$set": {"match_id": person1}}
-        )
-        chatb_collection.update_one(
-            queryChatId(person1),
-            {"$set": {"state": "matched"}}
-        )
-        chatb_collection.update_one(
-            queryChatId(person2),
-            {"$set": {"state": "matched"}}
-        )
+def match(t_id):
+    # inQueue = chatb_collection.count_documents({"state": "queued"})
+    # personsInQueue = chatb_collection.find({"state": "queued"})
 
-        successMessage = "You have been matched! Have fun!"
-        send_message(successMessage, person1)
-        send_message(successMessage, person2)
+    # for i in range(0, inQueue - 1, 2):
+    #     person1 = personsInQueue[i]["chat_id"]
+    #     person2 = personsInQueue[i + 1]["chat_id"]
 
-    if (inQueue == 1):
-        global count
-        global waitMessage
-        global messageDict
-        lastPerson = personsInQueue[inQueue - 1]["chat_id"]
-        waitMessageX = waitMessage + count * "."
+    #     chatb_collection.update_one(
+    #         queryChatId(person1),
+    #         {"$set": {"match_id": person2}}
+    #     )
+    #     chatb_collection.update_one(
+    #         queryChatId(person2),
+    #         {"$set": {"match_id": person1}}
+    #     )
+    #     chatb_collection.update_one(
+    #         queryChatId(person1),
+    #         {"$set": {"state": "matched"}}
+    #     )
+    #     chatb_collection.update_one(
+    #         queryChatId(person2),
+    #         {"$set": {"state": "matched"}}
+    #     )
 
-        if lastPerson in messageDict:
-            waitDiff = datetime.datetime.now() - messageDict[lastPerson]["time"]
-            waitTime = waitDiff.total_seconds()
-            if waitTime <= 60:
-                update_message(waitMessageX, lastPerson, messageDict[lastPerson]["message_id"])
-            else:
-                msg = "Sorry, there seems to be no one online at the moment. Try again later."
-                chatb_collection.update_one(
-                    queryChatId(lastPerson),
-                    {"$set": {"state": "untethered"}}
-                )
-                send_message(msg, lastPerson)
-        else:
-            sentMessage = send_message(waitMessageX, lastPerson, '', False)
-            messageDict[lastPerson] = {
-                "message_id": sentMessage['result']['message_id'],
-                "time": datetime.datetime.now()
-            }
-        
-        count = (count + 1) % 3
-    else:
-        messageDict = {}
-    print("welp")
+    #     successMessage = "You have been matched! Have fun!"
+    #     send_message(successMessage, person1)
+    #     send_message(successMessage, person2)
+
+    # if (inQueue == 1):
+    #     global count
+    #     global waitMessage
+    #     global messageDict
+    #     lastPerson = personsInQueue[inQueue - 1]["chat_id"]
+    #     waitMessageX = waitMessage + count * "."
+
+    #     if lastPerson in messageDict:
+    #         waitDiff = datetime.datetime.now() - messageDict[lastPerson]["time"]
+    #         waitTime = waitDiff.total_seconds()
+    #         if waitTime <= 60:
+    #             update_message(waitMessageX, lastPerson, messageDict[lastPerson]["message_id"])
+    #         else:
+    #             msg = "Sorry, there seems to be no one online at the moment. Try again later."
+    #             chatb_collection.update_one(
+    #                 queryChatId(lastPerson),
+    #                 {"$set": {"state": "untethered"}}
+    #             )
+    #             send_message(msg, lastPerson)
+    #     else:
+    #         sentMessage = send_message(waitMessageX, lastPerson, '', False)
+    #         messageDict[lastPerson] = {
+    #             "message_id": sentMessage['result']['message_id'],
+    #             "time": datetime.datetime.now()
+    #         }
+
+    #     count = (count + 1) % 3
+    # else:
+    #     messageDict = {}
+    # print("welp")
+
+    match = chatb_collection.findOne({ $and: [{"state": "queued"}, {$not: {"chat_id": t_id}}]})
+    print(match)
+
+    # for i in range(0, inQueue - 1, 2):
+    #     person1 = personsInQueue[i]["chat_id"]
+    #     person2 = personsInQueue[i + 1]["chat_id"]
+
+    #     chatb_collection.update_one(
+    #         queryChatId(person1),
+    #         {"$set": {"match_id": person2}}
+    #     )
+    #     chatb_collection.update_one(
+    #         queryChatId(person2),
+    #         {"$set": {"match_id": person1}}
+    #     )
+    #     chatb_collection.update_one(
+    #         queryChatId(person1),
+    #         {"$set": {"state": "matched"}}
+    #     )
+    #     chatb_collection.update_one(
+    #         queryChatId(person2),
+    #         {"$set": {"state": "matched"}}
+    #     )
+
+    #     successMessage = "You have been matched! Have fun!"
+    #     send_message(successMessage, person1)
+    #     send_message(successMessage, person2)
+
 
 # @background(schedule=0)
 # def train():
-#     global chatbot 
+#     global chatbot
 #     trainer = ChatterBotCorpusTrainer(chatbot)
 
 #     trainer.train("chatterbot.corpus.english")
@@ -114,6 +145,7 @@ def send_message(message, chat_id, reply_markup='', notif=True):
     )
     return response.json()
 
+
 def update_message(message, chat_id, message_id, reply_markup=''):
     data = {
         "chat_id": chat_id,
@@ -125,6 +157,7 @@ def update_message(message, chat_id, message_id, reply_markup=''):
     response = requests.post(
         f"{TELEGRAM_URL}{TUTORIAL_BOT_TOKEN}/editMessageText", data=data
     )
+
 
 def queryChatId(chat_id):
     return {"chat_id": chat_id}
