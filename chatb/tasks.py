@@ -1,8 +1,3 @@
-# from background_task import background
-# from chatterbot import ChatBot
-# from chatterbot.trainers import ChatterBotCorpusTrainer
-
-from multiprocessing.connection import wait
 from .models import chatb_collection, chatb_history
 
 import requests
