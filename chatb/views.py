@@ -36,7 +36,7 @@ startText = "Hi there \n\n" + \
             "You can use this bot to match and anonymously chat " + \
             "with other pEHple; to make new connections and " + \
             "have fun. \n\nKeep chats civilized and do not harass anyone. " + \
-            "Please note, chat is anonymous only until you break the rules and abuse the bot" + \
+            "Please note, chat is anonymous only until you break the rules and abuse the bot.\n\n" + \
             helpText
 
 msg404 = "Aw, Snap! I'm broken and my devs are too tired to fix me :("
